@@ -131,6 +131,44 @@
     position:absolute;left:50%;transform:translateX(-50%);top:150px;z-index:4;text-align:center;color:rgba(255,255,255,.72);
     font-weight:900;letter-spacing:.18em;font-size:12px;pointer-events:none
   }
+  .phaseBanner{
+    position:absolute;left:50%;top:182px;transform:translateX(-50%);
+    z-index:7;display:flex;align-items:center;justify-content:center;gap:12px;
+    min-width:min(760px,94vw);padding:12px 18px;border-radius:24px;
+    border:2px solid rgba(255,255,255,.28);background:rgba(6,12,28,.62);
+    box-shadow:0 16px 50px rgba(0,0,0,.3);backdrop-filter:blur(12px);
+    pointer-events:none;text-align:center;
+  }
+  .phaseIcon{
+    font-size:clamp(28px,5vw,52px);line-height:1;
+    animation:phasePulse .75s infinite alternate;
+  }
+  .phaseWords{
+    font-size:clamp(18px,4vw,42px);font-weight:1000;line-height:1.02;
+    text-shadow:0 6px 26px rgba(0,0,0,.45);
+  }
+  .phaseHint{
+    font-size:clamp(12px,1.7vw,16px);font-weight:900;color:#d6e6ff;margin-top:3px;
+  }
+  .phaseBanner.attack{
+    background:linear-gradient(90deg,rgba(255,71,87,.72),rgba(6,12,28,.56));
+    border-color:rgba(255,132,145,.7);
+  }
+  .phaseBanner.defend{
+    background:linear-gradient(90deg,rgba(54,163,255,.72),rgba(6,12,28,.56));
+    border-color:rgba(142,208,255,.7);
+  }
+  .phaseBanner.riposte{
+    background:linear-gradient(90deg,rgba(255,209,102,.78),rgba(6,12,28,.56));
+    border-color:rgba(255,226,141,.75);
+  }
+  .panel.attackMode{border-color:rgba(255,132,145,.75);box-shadow:0 22px 80px rgba(255,71,87,.22)}
+  .panel.defendMode{border-color:rgba(142,208,255,.75);box-shadow:0 22px 80px rgba(54,163,255,.22)}
+  .panel.riposteMode{border-color:rgba(255,226,141,.75);box-shadow:0 22px 80px rgba(255,209,102,.2)}
+  @keyframes phasePulse{
+    from{transform:translateX(0) scale(1)}
+    to{transform:translateX(8px) scale(1.08)}
+  }
   .toast{
     position:absolute;right:12px;bottom:12px;z-index:30;background:rgba(0,0,0,.5);color:white;padding:10px 12px;border-radius:14px;
     border:1px solid rgba(255,255,255,.18);font-size:13px;opacity:.0;transition:.25s;pointer-events:none
@@ -150,6 +188,7 @@
     .timerWrap{width:100%;text-align:left}
     .timerBar{width:100%}
     .arenaLabel{top:166px}
+    .phaseBanner{top:194px;padding:10px 12px;border-radius:20px}
   }
 </style>
 </head>
@@ -176,6 +215,13 @@
   </div>
 
   <div class="arenaLabel">EN GARDE · ALLEZ · TOUCHÉ</div>
+  <div id="phaseBanner" class="phaseBanner attack hidden">
+    <div id="phaseIcon" class="phaseIcon">➡️</div>
+    <div>
+      <div id="phaseWords" class="phaseWords">RED ATTACKS!</div>
+      <div id="phaseHint" class="phaseHint">Answer correctly to score a touch.</div>
+    </div>
+  </div>
   <div id="flash" class="flash">TOUCHÉ!</div>
 
   <section id="questionPanel" class="panel hidden">
@@ -290,6 +336,7 @@
     redScore:$("redScore"), blueScore:$("blueScore"), targetText:$("targetText"),
     streakText:$("streakText"), powerText:$("powerText"), flash:$("flash"),
     phaseTitle:$("phaseTitle"), phaseSubtitle:$("phaseSubtitle"),
+    phaseBanner:$("phaseBanner"), phaseIcon:$("phaseIcon"), phaseWords:$("phaseWords"), phaseHint:$("phaseHint"),
     question:$("question"), answers:$("answers"), timeText:$("timeText"),
     timerFill:$("timerFill"), toast:$("toast")
   };
@@ -389,16 +436,37 @@
     clearInterval(game.timerId);
     game.phase = phase;
     game.current = makeQuestion();
-    els.questionPanel.classList.remove("hidden");
+
+    els.questionPanel.classList.remove("hidden", "attackMode", "defendMode", "riposteMode");
+    els.phaseBanner.classList.remove("hidden", "attack", "defend", "riposte");
+
     if(phase==="attack"){
+      els.questionPanel.classList.add("attackMode");
+      els.phaseBanner.classList.add("attack");
+      els.phaseIcon.textContent = game.power ? "🔥➡️" : "➡️";
+      els.phaseWords.textContent = game.power ? "RED POWER ATTACK!" : "RED ATTACKS!";
+      els.phaseHint.textContent = "Solve it to lunge and score.";
       els.phaseTitle.textContent = game.power ? "Power Attack!" : "Attack!";
-      els.phaseSubtitle.textContent = game.power ? "Answer correctly to unleash an unstoppable flèche." : "Answer correctly to lunge at Blue.";
+      els.phaseSubtitle.textContent = game.power ? "Correct answer = unstoppable flèche." : "Correct answer = Red lunges at Blue.";
+      animate("redReady");
     }else if(phase==="defend"){
+      els.questionPanel.classList.add("defendMode");
+      els.phaseBanner.classList.add("defend");
+      els.phaseIcon.textContent = "⬅️🛡️";
+      els.phaseWords.textContent = "BLUE ATTACKS — DEFEND!";
+      els.phaseHint.textContent = "Solve it to parry Blue’s blade.";
       els.phaseTitle.textContent = "Defend!";
-      els.phaseSubtitle.textContent = "Blue attacks. Answer correctly to parry.";
+      els.phaseSubtitle.textContent = "Correct answer = Red parries Blue’s attack.";
+      animate("blueReady");
     }else{
+      els.questionPanel.classList.add("riposteMode");
+      els.phaseBanner.classList.add("riposte");
+      els.phaseIcon.textContent = "↩️⚔️";
+      els.phaseWords.textContent = "RIPOSTE!";
+      els.phaseHint.textContent = "You blocked. Solve it to strike back.";
       els.phaseTitle.textContent = "Riposte!";
-      els.phaseSubtitle.textContent = "You parried. Answer correctly to strike back.";
+      els.phaseSubtitle.textContent = "Correct answer = Red counter-attacks.";
+      animate("redRiposteReady");
     }
     els.question.textContent = game.current.text;
     buildAnswers(game.current);
@@ -461,6 +529,7 @@
     const phase = game.phase;
     setTimeout(() => {
       els.questionPanel.classList.add("hidden");
+      els.phaseBanner.classList.add("hidden");
       resolvePhase(phase, correct);
     }, 520);
   }
@@ -534,6 +603,7 @@
 
   function finish(){
     els.questionPanel.classList.add("hidden");
+    els.phaseBanner.classList.add("hidden");
     els.gameOver.classList.remove("hidden");
     const won = game.red > game.blue;
     $("overTitle").textContent = won ? "🏆 Red Wins!" : "Blue Wins!";
@@ -629,6 +699,7 @@
   $("againBtn").addEventListener("click", () => startGame(false));
   $("coverBtn").addEventListener("click", () => {
     els.gameOver.classList.add("hidden");
+    els.phaseBanner.classList.add("hidden");
     els.cover.classList.remove("hidden");
     game.phase="cover"; animate("idle");
   });
@@ -639,6 +710,7 @@
     ctx.clearRect(0,0,w,h);
     drawArena(w,h,now);
     drawFencers(w,h,now);
+    drawPhaseArrows(w,h,now);
     drawParticles(w,h);
     requestAnimationFrame(draw);
   }
@@ -681,110 +753,351 @@
 
   function drawFencers(w,h,now){
     const floorY = h*.70;
-    const t = Math.min(1, (now - game.animStart)/700);
+    const t = Math.min(1, (now - game.animStart)/760);
     const ease = t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
+
     let redX = w*.34, blueX = w*.66;
-    let redLean = 0, blueLean = 0, redArm = 0, blueArm = 0;
+    let redPose = "guard", bluePose = "guard";
     let redH = 0, blueH = 0;
 
-    if(game.anim==="salute"){ redArm=-.7*Math.sin(t*Math.PI); blueArm=-.7*Math.sin(t*Math.PI); }
-    if(game.anim==="redHit" || game.anim==="blueParry"){ redX += 95*Math.sin(ease*Math.PI); redLean=.25; redArm=.38; }
-    if(game.anim==="blueHit" || game.anim==="redParry" || game.anim==="blueCounter"){ blueX -= 95*Math.sin(ease*Math.PI); blueLean=-.25; blueArm=-.38; }
-    if(game.anim==="redParry"){ redArm=-.55; blueArm=-.35; }
-    if(game.anim==="blueParry"){ blueArm=.55; redArm=.35; }
-    if(game.anim==="redWin"){ redH = -18*Math.abs(Math.sin(now/180)); redArm=-1.0; }
-    if(game.anim==="blueWin"){ blueH = -18*Math.abs(Math.sin(now/180)); blueArm=1.0; }
-    if(game.anim==="idle" || game.anim==="reset" || game.phase==="cover"){
+    // Question states: show pupils what is happening before they answer.
+    if(game.phase === "attack" && !els.questionPanel.classList.contains("hidden")){
+      redPose = game.power ? "powerReady" : "attackReady";
+      bluePose = "guard";
+      redX += 22*Math.abs(Math.sin(now/190));
+    }
+    if(game.phase === "defend" && !els.questionPanel.classList.contains("hidden")){
+      redPose = "parryReady";
+      bluePose = "attackReady";
+      blueX -= 22*Math.abs(Math.sin(now/190));
+    }
+    if(game.phase === "riposte" && !els.questionPanel.classList.contains("hidden")){
+      redPose = "riposteReady";
+      bluePose = "offBalance";
+      redX += 16*Math.abs(Math.sin(now/160));
+    }
+
+    // Resolution animations after an answer.
+    if(game.anim==="salute"){
+      redPose = "salute"; bluePose = "salute";
+    }
+    if(game.anim==="redReady"){
+      redPose = game.power ? "powerReady" : "attackReady";
+      redX += 18*Math.abs(Math.sin(now/180));
+    }
+    if(game.anim==="blueReady"){
+      redPose = "parryReady";
+      bluePose = "attackReady";
+      blueX -= 18*Math.abs(Math.sin(now/180));
+    }
+    if(game.anim==="redRiposteReady"){
+      redPose = "riposteReady"; bluePose = "offBalance";
+      redX += 12*Math.abs(Math.sin(now/150));
+    }
+    if(game.anim==="redHit"){
+      redPose = "lunge"; bluePose = "hitRecoil";
+      redX += 115*Math.sin(ease*Math.PI);
+      drawActionWord("LUNGE!", redX+70, floorY-210, "#ffdf6e", now);
+    }
+    if(game.anim==="blueHit" || game.anim==="blueCounter"){
+      bluePose = "lunge"; redPose = "hitRecoil";
+      blueX -= 115*Math.sin(ease*Math.PI);
+      drawActionWord("BLUE LUNGES!", blueX-80, floorY-210, "#9ad8ff", now);
+    }
+    if(game.anim==="redParry"){
+      redPose = "parry"; bluePose = "blocked";
+      blueX -= 82*Math.sin(ease*Math.PI);
+      drawActionWord("PARRY!", w*.50, floorY-235, "#ffd166", now);
+      drawBladeClash(w*.50, floorY-155, now);
+    }
+    if(game.anim==="blueParry"){
+      redPose = "blocked"; bluePose = "parry";
+      redX += 82*Math.sin(ease*Math.PI);
+      drawActionWord("PARRIED!", w*.50, floorY-235, "#9ad8ff", now);
+      drawBladeClash(w*.50, floorY-155, now);
+    }
+    if(game.anim==="redWin"){
+      redPose = "celebrate"; bluePose = "hitRecoil";
+      redH = -18*Math.abs(Math.sin(now/180));
+    }
+    if(game.anim==="blueWin"){
+      bluePose = "celebrate"; redPose = "hitRecoil";
+      blueH = -18*Math.abs(Math.sin(now/180));
+    }
+    if((game.anim==="idle" || game.anim==="reset" || game.phase==="cover") && els.questionPanel.classList.contains("hidden")){
       redX += Math.sin(now/460)*3; blueX += Math.cos(now/460)*3;
     }
 
-    drawStickFencer(redX, floorY+redH, 1, "#ff4757", redLean, redArm, now, "RED");
-    drawStickFencer(blueX, floorY+blueH, -1, "#36a3ff", blueLean, blueArm, now, "BLUE");
+    drawStickFencer(redX, floorY+redH, 1, "#ff4757", now, "RED", redPose);
+    drawStickFencer(blueX, floorY+blueH, -1, "#36a3ff", now, "BLUE", bluePose);
   }
 
-  function drawStickFencer(x, y, dir, color, lean, armAdjust, now, label){
+  function drawStickFencer(x, y, dir, color, now, label, pose="guard"){
     const bob = Math.sin(now/300 + x)*2;
     const headR = 20;
-    const torso = 72;
-    const hipY = y - 64 + bob;
-    const shoulderY = hipY - torso;
-    const headY = shoulderY - 30;
-    const leanX = lean*34;
+    let shoulder = {x:x, y:y-136+bob};
+    let hip = {x:x, y:y-64+bob};
+    let head = {x:x, y:shoulder.y-30};
+
+    // Pose definitions make attack and parry readable even for stickmen.
+    let lean = 0;
+    let frontFoot = {x:x+dir*46, y:y-6};
+    let backFoot = {x:x-dir*28, y:y};
+    let swordHand = {x:x+dir*82, y:shoulder.y+16};
+    let backHand = {x:x-dir*30, y:shoulder.y+35};
+    let bladeEnd = {x:swordHand.x+dir*158, y:swordHand.y-dir*10};
+    let lineWidth = 8;
+    let guardTilt = 0;
+
+    if(pose === "attackReady"){
+      lean = .18*dir;
+      frontFoot = {x:x+dir*64, y:y-8};
+      backFoot = {x:x-dir*36, y:y+1};
+      swordHand = {x:x+dir*104, y:shoulder.y+10};
+      bladeEnd = {x:swordHand.x+dir*178, y:swordHand.y};
+    }
+    if(pose === "powerReady"){
+      lean = .22*dir;
+      frontFoot = {x:x+dir*72, y:y-10};
+      backFoot = {x:x-dir*42, y:y+1};
+      swordHand = {x:x+dir*112, y:shoulder.y+8};
+      bladeEnd = {x:swordHand.x+dir*198, y:swordHand.y};
+      lineWidth = 10;
+    }
+    if(pose === "lunge"){
+      lean = .42*dir;
+      hip.x += dir*22;
+      shoulder.x += dir*38;
+      head.x += dir*42;
+      frontFoot = {x:x+dir*116, y:y-8};
+      backFoot = {x:x-dir*72, y:y+4};
+      swordHand = {x:shoulder.x+dir*96, y:shoulder.y+2};
+      bladeEnd = {x:swordHand.x+dir*224, y:swordHand.y};
+      lineWidth = 10;
+    }
+    if(pose === "parryReady"){
+      lean = -.08*dir;
+      frontFoot = {x:x+dir*36, y:y-5};
+      backFoot = {x:x-dir*38, y:y};
+      swordHand = {x:x+dir*64, y:shoulder.y-8};
+      bladeEnd = {x:swordHand.x+dir*62, y:swordHand.y-82};
+      guardTilt = -dir*.7;
+    }
+    if(pose === "parry"){
+      lean = -.14*dir;
+      frontFoot = {x:x+dir*30, y:y-6};
+      backFoot = {x:x-dir*44, y:y};
+      swordHand = {x:x+dir*72, y:shoulder.y-2};
+      bladeEnd = {x:swordHand.x+dir*86, y:swordHand.y-98};
+      guardTilt = -dir*.9;
+      lineWidth = 10;
+    }
+    if(pose === "blocked"){
+      lean = -.28*dir;
+      shoulder.x -= dir*22;
+      head.x -= dir*22;
+      swordHand = {x:x+dir*58, y:shoulder.y+42};
+      bladeEnd = {x:swordHand.x+dir*132, y:swordHand.y+36};
+      frontFoot = {x:x+dir*34, y:y-4};
+      backFoot = {x:x-dir*52, y:y+2};
+    }
+    if(pose === "riposteReady"){
+      lean = .24*dir;
+      frontFoot = {x:x+dir*64, y:y-7};
+      backFoot = {x:x-dir*38, y:y+1};
+      swordHand = {x:x+dir*108, y:shoulder.y+4};
+      bladeEnd = {x:swordHand.x+dir*190, y:swordHand.y-4};
+      lineWidth = 10;
+    }
+    if(pose === "offBalance"){
+      lean = -.22*dir;
+      shoulder.x -= dir*18;
+      head.x -= dir*18;
+      swordHand = {x:x+dir*58, y:shoulder.y+30};
+      bladeEnd = {x:swordHand.x+dir*120, y:swordHand.y+30};
+    }
+    if(pose === "hitRecoil"){
+      lean = -.42*dir;
+      shoulder.x -= dir*35;
+      head.x -= dir*38;
+      frontFoot = {x:x+dir*16, y:y-3};
+      backFoot = {x:x-dir*74, y:y+4};
+      swordHand = {x:x+dir*42, y:shoulder.y+46};
+      bladeEnd = {x:swordHand.x+dir*106, y:swordHand.y+48};
+    }
+    if(pose === "salute"){
+      swordHand = {x:x+dir*36, y:shoulder.y-30};
+      bladeEnd = {x:swordHand.x, y:swordHand.y-150};
+    }
+    if(pose === "celebrate"){
+      swordHand = {x:x+dir*38, y:shoulder.y-40};
+      bladeEnd = {x:swordHand.x+dir*28, y:swordHand.y-155};
+      backHand = {x:x-dir*42, y:shoulder.y-36};
+    }
+
+    shoulder.x += lean*30;
+    head.x += lean*18;
 
     ctx.save();
     ctx.lineCap="round"; ctx.lineJoin="round";
     ctx.shadowColor = color; ctx.shadowBlur = 18;
 
-    // mask
-    ctx.fillStyle = "rgba(255,255,255,.94)";
+    // Head / mask
+    ctx.fillStyle = "rgba(255,255,255,.95)";
     ctx.beginPath();
-    ctx.arc(x+leanX*.6, headY, headR, 0, Math.PI*2);
+    ctx.arc(head.x, head.y, headR, 0, Math.PI*2);
     ctx.fill();
     ctx.strokeStyle=color; ctx.lineWidth=5; ctx.stroke();
 
-    // visor
+    // Visor points toward opponent.
     ctx.shadowBlur = 0;
     ctx.fillStyle = color;
-    ctx.fillRect(x + dir*2 + leanX*.6, headY-6, dir*18, 7);
+    ctx.fillRect(head.x + dir*1, head.y-6, dir*20, 7);
 
-    // body
+    // Torso
     ctx.shadowBlur = 12;
     ctx.strokeStyle = color;
     ctx.lineWidth = 9;
     ctx.beginPath();
-    ctx.moveTo(x+leanX, shoulderY);
-    ctx.lineTo(x, hipY);
+    ctx.moveTo(shoulder.x, shoulder.y);
+    ctx.lineTo(hip.x, hip.y);
     ctx.stroke();
 
-    // legs
+    // Legs: exaggerated in lunge.
     ctx.lineWidth = 8;
     ctx.beginPath();
-    ctx.moveTo(x, hipY);
-    ctx.lineTo(x-dir*28, y);
-    ctx.moveTo(x, hipY);
-    ctx.lineTo(x+dir*46, y-6);
+    ctx.moveTo(hip.x, hip.y);
+    ctx.lineTo(backFoot.x, backFoot.y);
+    ctx.moveTo(hip.x, hip.y);
+    ctx.lineTo(frontFoot.x, frontFoot.y);
     ctx.stroke();
 
-    // back arm
+    // Back arm
     ctx.lineWidth = 7;
     ctx.beginPath();
-    ctx.moveTo(x+leanX*.8, shoulderY+6);
-    ctx.lineTo(x-dir*30, shoulderY+35);
+    ctx.moveTo(shoulder.x, shoulder.y+6);
+    ctx.lineTo(backHand.x, backHand.y);
     ctx.stroke();
 
-    // sword arm
-    const armAngle = dir*(0.15+armAdjust);
-    const handX = x + dir*(72 + Math.abs(armAdjust)*30) + leanX;
-    const handY = shoulderY + 18 + Math.sin(armAngle)*24;
+    // Sword arm
+    ctx.lineWidth = lineWidth;
     ctx.beginPath();
-    ctx.moveTo(x+leanX*.8, shoulderY+6);
-    ctx.lineTo(handX, handY);
+    ctx.moveTo(shoulder.x, shoulder.y+6);
+    ctx.lineTo(swordHand.x, swordHand.y);
     ctx.stroke();
 
-    // guard and sword
-    ctx.shadowColor = "white"; ctx.shadowBlur = 8;
-    ctx.strokeStyle = "rgba(255,255,255,.95)";
+    // Bell guard
+    ctx.shadowColor = "white"; ctx.shadowBlur = 9;
+    ctx.strokeStyle = "rgba(255,255,255,.98)";
     ctx.lineWidth = 4;
+    ctx.save();
+    ctx.translate(swordHand.x, swordHand.y);
+    ctx.rotate(guardTilt);
     ctx.beginPath();
-    ctx.arc(handX, handY, 8, 0, Math.PI*2);
+    ctx.ellipse(0, 0, 11, 8, 0, 0, Math.PI*2);
     ctx.stroke();
+    ctx.restore();
+
+    // Blade with coloured glow depending on pose.
+    if(pose === "parry" || pose === "parryReady"){
+      ctx.shadowColor = "#ffd166";
+      ctx.strokeStyle = "rgba(255,226,141,.98)";
+    }else if(pose === "lunge" || pose === "attackReady" || pose === "riposteReady" || pose === "powerReady"){
+      ctx.shadowColor = color;
+      ctx.strokeStyle = "rgba(255,255,255,.98)";
+    }else{
+      ctx.shadowColor = "white";
+      ctx.strokeStyle = "rgba(255,255,255,.92)";
+    }
+    ctx.shadowBlur = pose === "powerReady" ? 22 : 10;
+    ctx.lineWidth = pose === "powerReady" ? 5 : 4;
     ctx.beginPath();
-    ctx.moveTo(handX + dir*6, handY);
-    ctx.lineTo(handX + dir*158, handY - 10*dir);
+    ctx.moveTo(swordHand.x + dir*8, swordHand.y);
+    ctx.lineTo(bladeEnd.x, bladeEnd.y);
     ctx.stroke();
 
-    // point shine
-    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.fillStyle = "rgba(255,255,255,.95)";
     ctx.beginPath();
-    ctx.arc(handX + dir*158, handY - 10*dir, 3, 0, Math.PI*2);
+    ctx.arc(bladeEnd.x, bladeEnd.y, 3.2, 0, Math.PI*2);
     ctx.fill();
 
-    // label
+    // Small pose label above the active fencer.
+    if(["attackReady","powerReady","lunge","parryReady","parry","riposteReady"].includes(pose)){
+      const poseText = pose.includes("parry") ? "PARRY" : pose.includes("riposte") ? "RIPOSTE" : "ATTACK";
+      ctx.shadowBlur = 0;
+      ctx.font = "1000 13px system-ui";
+      ctx.textAlign = "center";
+      ctx.fillStyle = poseText === "PARRY" ? "#ffd166" : color;
+      ctx.fillText(poseText, x, head.y-34);
+    }
+
+    // Name label
     ctx.shadowBlur = 0;
     ctx.font = "900 12px system-ui";
     ctx.textAlign = "center";
     ctx.fillStyle = color;
     ctx.fillText(label, x, y+28);
+    ctx.restore();
+  }
+
+  function drawBladeClash(x, y, now){
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.sin(now/90)*.08);
+    ctx.shadowColor = "#ffd166";
+    ctx.shadowBlur = 18;
+    ctx.strokeStyle = "rgba(255,226,141,.95)";
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(-42,-42); ctx.lineTo(42,42);
+    ctx.moveTo(42,-42); ctx.lineTo(-42,42);
+    ctx.stroke();
+    ctx.fillStyle = "#fff";
+    for(let i=0;i<8;i++){
+      const a = i*Math.PI/4 + now/200;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a)*24, Math.sin(a)*24, 2.5, 0, Math.PI*2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawActionWord(text, x, y, color, now){
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.font = `1000 ${Math.max(22, Math.min(44, app.clientWidth*.045))}px system-ui`;
+    ctx.fillStyle = color;
+    ctx.shadowColor = "rgba(0,0,0,.65)";
+    ctx.shadowBlur = 12;
+    ctx.translate(0, Math.sin(now/100)*3);
+    ctx.fillText(text, x, y);
+    ctx.restore();
+  }
+
+  function drawPhaseArrows(w,h,now){
+    if(els.phaseBanner.classList.contains("hidden")) return;
+    const y = h*.39 + Math.sin(now/180)*6;
+    ctx.save();
+    ctx.textAlign = "center";
+    ctx.font = `900 ${Math.max(34, Math.min(68, w*.07))}px system-ui`;
+    ctx.shadowBlur = 18;
+    if(game.phase === "attack"){
+      ctx.shadowColor = "#ff4757";
+      ctx.fillStyle = "rgba(255,110,125,.95)";
+      ctx.fillText("RED ATTACK ➜", w*.38, y);
+    }else if(game.phase === "defend"){
+      ctx.shadowColor = "#36a3ff";
+      ctx.fillStyle = "rgba(142,208,255,.95)";
+      ctx.fillText("⬅ BLUE ATTACK", w*.62, y);
+      ctx.font = `900 ${Math.max(22, Math.min(42, w*.045))}px system-ui`;
+      ctx.fillStyle = "rgba(255,255,255,.92)";
+      ctx.fillText("DEFEND NOW!", w*.50, y+48);
+    }else if(game.phase === "riposte"){
+      ctx.shadowColor = "#ffd166";
+      ctx.fillStyle = "rgba(255,226,141,.98)";
+      ctx.fillText("RIPOSTE ➜", w*.42, y);
+    }
     ctx.restore();
   }
 
