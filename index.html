@@ -131,12 +131,7 @@
     font-weight:900;letter-spacing:.18em;font-size:12px;pointer-events:none
   }
   .phaseBanner{
-    position:absolute;left:50%;top:182px;transform:translateX(-50%);
-    z-index:7;display:flex;align-items:center;justify-content:center;gap:12px;
-    min-width:min(760px,94vw);padding:12px 18px;border-radius:24px;
-    border:2px solid rgba(255,255,255,.28);background:rgba(6,12,28,.62);
-    box-shadow:0 16px 50px rgba(0,0,0,.3);backdrop-filter:blur(12px);
-    pointer-events:none;text-align:center;
+    display:none!important;
   }
   .phaseIcon{
     font-size:clamp(28px,5vw,52px);line-height:1;
@@ -187,7 +182,6 @@
     .timerWrap{width:100%;text-align:left}
     .timerBar{width:100%}
     .arenaLabel{top:166px}
-    .phaseBanner{top:194px;padding:10px 12px;border-radius:20px}
   }
 </style>
 </head>
@@ -607,7 +601,7 @@
       els.phaseWords.textContent = game.power ? "RED POWER ATTACK!" : "RED ATTACKS!";
       els.phaseHint.textContent = "Solve it to lunge and score.";
       els.phaseTitle.textContent = game.power ? "Power Attack!" : "Attack!";
-      els.phaseSubtitle.textContent = game.power ? "Correct answer = unstoppable flèche." : "Correct answer = Red lunges at Blue.";
+      els.phaseSubtitle.textContent = game.power ? "Answer to unleash a power attack." : "Answer to attack.";
       animate("redReady");
     }else if(phase==="defend"){
       els.questionPanel.classList.add("defendMode");
@@ -616,7 +610,7 @@
       els.phaseWords.textContent = "BLUE ATTACKS — DEFEND!";
       els.phaseHint.textContent = "Solve it to parry Blue’s blade.";
       els.phaseTitle.textContent = "Defend!";
-      els.phaseSubtitle.textContent = "Correct answer = Red parries Blue’s attack.";
+      els.phaseSubtitle.textContent = "Answer to parry.";
       animate("blueReady");
     }else{
       els.questionPanel.classList.add("riposteMode");
@@ -625,7 +619,7 @@
       els.phaseWords.textContent = "RIPOSTE!";
       els.phaseHint.textContent = "You blocked. Solve it to strike back.";
       els.phaseTitle.textContent = "Riposte!";
-      els.phaseSubtitle.textContent = "Correct answer = Red counter-attacks.";
+      els.phaseSubtitle.textContent = "Answer to counter-attack.";
       animate("redRiposteReady");
     }
     els.question.textContent = game.current.text;
@@ -1395,29 +1389,7 @@
   }
 
   function drawPhaseArrows(w,h,now){
-    if(els.phaseBanner.classList.contains("hidden")) return;
-    const y = h*.39 + Math.sin(now/180)*6;
-    ctx.save();
-    ctx.textAlign = "center";
-    ctx.font = `900 ${Math.max(34, Math.min(68, w*.07))}px system-ui`;
-    ctx.shadowBlur = 18;
-    if(game.phase === "attack"){
-      ctx.shadowColor = "#ff4757";
-      ctx.fillStyle = "rgba(255,110,125,.95)";
-      ctx.fillText("RED ATTACK ➜", w*.38, y);
-    }else if(game.phase === "defend"){
-      ctx.shadowColor = "#36a3ff";
-      ctx.fillStyle = "rgba(142,208,255,.95)";
-      ctx.fillText("⬅ BLUE ATTACK", w*.62, y);
-      ctx.font = `900 ${Math.max(22, Math.min(42, w*.045))}px system-ui`;
-      ctx.fillStyle = "rgba(255,255,255,.92)";
-      ctx.fillText("DEFEND NOW!", w*.50, y+48);
-    }else if(game.phase === "riposte"){
-      ctx.shadowColor = "#ffd166";
-      ctx.fillStyle = "rgba(255,226,141,.98)";
-      ctx.fillText("RIPOSTE ➜", w*.42, y);
-    }
-    ctx.restore();
+    // Intentionally left empty to reduce redundant on-screen prompts.
   }
 
   function drawParticles(w,h){
