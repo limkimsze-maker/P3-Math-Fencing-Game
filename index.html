@@ -383,6 +383,10 @@
   }
 
   function ask(phase){
+    // Important: riposte questions are opened directly after a successful parry.
+    // Unlock here so the next answer can always be selected.
+    game.locked = false;
+    clearInterval(game.timerId);
     game.phase = phase;
     game.current = makeQuestion();
     els.questionPanel.classList.remove("hidden");
@@ -423,8 +427,10 @@
     q.choices.forEach((choice, i) => {
       const b = document.createElement("button");
       b.className = "ans";
-      b.textContent = choice;
-      b.setAttribute("aria-label", "Answer " + (i+1) + ": " + choice);
+      const label = q.yesNo ? (choice === 1 ? "Yes" : "No") : choice;
+      b.textContent = label;
+      b.dataset.value = String(choice);
+      b.setAttribute("aria-label", "Answer " + (i+1) + ": " + label);
       b.addEventListener("click", () => handleAnswer(choice, b));
       els.answers.appendChild(b);
     });
@@ -438,7 +444,7 @@
     const correct = value === q.answer;
     [...els.answers.children].forEach(b => {
       b.disabled = true;
-      if(Number(b.textContent) === q.answer) b.classList.add("good");
+      if(Number(b.dataset.value) === q.answer) b.classList.add("good");
       else if(btn && b === btn) b.classList.add("bad");
     });
 
