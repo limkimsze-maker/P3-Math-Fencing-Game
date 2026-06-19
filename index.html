@@ -34,6 +34,8 @@
     border-radius:18px;padding:10px 14px;backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.22);
   }
   .scoreCard.blue{text-align:right}
+  .miniRounds{margin-top:4px;font-size:12px;color:#d6e6ff;font-weight:800}
+  .miniRounds b{font-size:15px;color:#fff}
   .name{font-weight:900;letter-spacing:.03em;font-size:clamp(13px,1.7vw,17px)}
   .name.red{color:#ff8090}.name.blue{color:#8ed0ff}
   .score{font-size:clamp(26px,5vw,46px);font-weight:1000;line-height:.9}
@@ -199,17 +201,21 @@
   <div class="topbar">
     <div class="scoreCard">
       <div class="name red">RED FENCER · YOU</div>
+      <div class="miniRounds">Rounds won: <b id="redRounds">0</b></div>
       <div class="score"><span id="redScore">0</span> <small>touches</small></div>
     </div>
     <div class="matchTitle">⚔️ MATH FENCING DUEL ⚔️</div>
     <div class="scoreCard blue">
       <div class="name blue">BLUE FENCER · RIVAL</div>
+      <div class="miniRounds">Rounds won: <b id="blueRounds">0</b></div>
       <div class="score"><span id="blueScore">0</span> <small>touches</small></div>
     </div>
   </div>
 
   <div class="hud">
-    <div class="pill">Target: <b id="targetText">5</b></div>
+    <div class="pill">Touches this round: <b id="targetText">5</b></div>
+    <div class="pill">Round: <b id="roundText">1 / 3</b></div>
+    <div class="pill">Rounds: <b id="roundScoreText">0 - 0</b></div>
     <div class="pill">Streak: <b id="streakText" class="combo">0</b></div>
     <div class="pill">Power Move: <b id="powerText">Not ready</b></div>
   </div>
@@ -242,7 +248,7 @@
   <section id="cover" class="cover">
     <div class="coverCard">
       <h1>Math <span>Fencing</span> Duel</h1>
-      <p>Red and Blue face off on the piste. Answer Math questions to attack, parry, and riposte.</p>
+      <p>Red and Blue face off on the piste in a full sporting-event arena. Answer Math questions to attack, parry, and riposte.</p>
       <div class="ruleGrid">
         <div class="rule"><b>⚡ Attack</b><span>When Red has initiative, solve the question to lunge and try to score a touch.</span></div>
         <div class="rule"><b>🛡️ Defend</b><span>When Blue attacks, solve the question to parry. Then answer again to riposte.</span></div>
@@ -300,6 +306,19 @@
               <option value="0">Off</option>
             </select>
           </label>
+          <label>Rounds to Win Match
+            <select id="roundsToWin">
+              <option value="1">1 round</option>
+              <option value="2" selected>2 rounds</option>
+              <option value="3">3 rounds</option>
+            </select>
+          </label>
+          <label>Referee Voice
+            <select id="voiceOn">
+              <option value="1" selected>On</option>
+              <option value="0">Off</option>
+            </select>
+          </label>
         </div>
       </details>
 
@@ -333,7 +352,8 @@
 
   const els = {
     cover:$("cover"), gameOver:$("gameOver"), questionPanel:$("questionPanel"),
-    redScore:$("redScore"), blueScore:$("blueScore"), targetText:$("targetText"),
+    redScore:$("redScore"), blueScore:$("blueScore"), redRounds:$("redRounds"), blueRounds:$("blueRounds"),
+    targetText:$("targetText"), roundText:$("roundText"), roundScoreText:$("roundScoreText"),
     streakText:$("streakText"), powerText:$("powerText"), flash:$("flash"),
     phaseTitle:$("phaseTitle"), phaseSubtitle:$("phaseSubtitle"),
     phaseBanner:$("phaseBanner"), phaseIcon:$("phaseIcon"), phaseWords:$("phaseWords"), phaseHint:$("phaseHint"),
@@ -342,10 +362,12 @@
   };
 
   const config = {
-    topic:"multiplication", min:2, max:12, multipleOf:4, seconds:8, target:5, aiSkill:62, sound:true
+    topic:"multiplication", min:2, max:12, multipleOf:4, seconds:8, target:5, aiSkill:62,
+    sound:true, roundsToWin:2, voice:true
   };
   const game = {
-    red:0, blue:0, streak:0, power:false, phase:"cover", current:null, locked:false,
+    red:0, blue:0, redRounds:0, blueRounds:0, currentRound:1, totalRounds:3,
+    streak:0, power:false, phase:"cover", current:null, locked:false,
     initiative:"red", anim:"idle", animStart:0, lastFlash:"", answerDeadline:0, timerId:null,
     confetti:[], sparks:[], crowd:0
   };
@@ -360,35 +382,117 @@
     config.target = parseInt($("target").value);
     config.aiSkill = parseInt($("aiSkill").value);
     config.sound = $("soundOn").value === "1";
+    config.roundsToWin = parseInt($("roundsToWin").value || "2");
+    config.voice = $("voiceOn").value === "1";
     els.targetText.textContent = config.target;
   }
   function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
   function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
   function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
 
+  function speakRef(text, rate=1.0){
+    if(!config.voice || !("speechSynthesis" in window)) return;
+    try{
+      window.speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
+      const englishVoice = voices.find(v => /en/i.test(v.lang) && /male|daniel|alex|fred|lee/i.test(v.name)) ||
+                           voices.find(v => /en/i.test(v.lang));
+      if(englishVoice) u.voice = englishVoice;
+      u.rate = rate;
+      u.pitch = .85;
+      u.volume = .9;
+      window.speechSynthesis.speak(u);
+    }catch(e){}
+  }
+
   let audioCtx = null;
   function sound(type){
     if(!config.sound) return;
     try{
       audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
       const now = audioCtx.currentTime;
-      const map = {
-        correct:[740,.05,.04], wrong:[160,.12,.08], touch:[980,.16,.09],
-        parry:[520,.08,.06], start:[330,.12,.06], win:[660,.12,.08]
-      };
-      const [freq,dur,vol] = map[type] || map.correct;
-      osc.type = type === "wrong" ? "sawtooth" : "sine";
-      osc.frequency.setValueAtTime(freq, now);
-      if(type==="win"){
-        osc.frequency.setValueAtTime(660, now);
-        osc.frequency.linearRampToValueAtTime(990, now+dur);
+
+      function playTone(freq, dur, vol, wave="sine", endFreq=null, delay=0){
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = wave;
+        osc.frequency.setValueAtTime(freq, now + delay);
+        if(endFreq !== null) osc.frequency.linearRampToValueAtTime(endFreq, now + delay + dur);
+        gain.gain.setValueAtTime(Math.max(0.0001, vol), now + delay);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + delay);
+        osc.stop(now + delay + dur);
       }
-      gain.gain.setValueAtTime(vol, now);
-      gain.gain.exponentialRampToValueAtTime(.001, now+dur);
-      osc.start(now); osc.stop(now+dur);
+
+      function noiseBurst(dur, vol, highpass=1200, delay=0){
+        const bufferSize = Math.max(1, Math.floor(audioCtx.sampleRate * dur));
+        const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for(let i=0;i<bufferSize;i++) data[i] = (Math.random()*2 - 1) * (1 - i/bufferSize);
+        const source = audioCtx.createBufferSource();
+        const filter = audioCtx.createBiquadFilter();
+        const gain = audioCtx.createGain();
+        filter.type = "highpass";
+        filter.frequency.value = highpass;
+        source.buffer = buffer;
+        source.connect(filter);
+        filter.connect(gain);
+        gain.connect(audioCtx.destination);
+        gain.gain.setValueAtTime(Math.max(0.0001, vol), now + delay);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + delay + dur);
+        source.start(now + delay);
+        source.stop(now + delay + dur);
+      }
+
+      if(type === "attack"){
+        noiseBurst(0.09, 0.03, 1500, 0);
+        playTone(720, 0.09, 0.03, "triangle", 360, 0.0);
+        return;
+      }
+      if(type === "parry"){
+        noiseBurst(0.07, 0.04, 1800, 0.0);
+        playTone(1520, 0.08, 0.045, "square", 980, 0.0);
+        playTone(2040, 0.06, 0.025, "triangle", 1320, 0.018);
+        return;
+      }
+      if(type === "touch"){
+        playTone(820, 0.08, 0.04, "triangle", 1140, 0.0);
+        playTone(1240, 0.13, 0.03, "sine", 1480, 0.05);
+        return;
+      }
+      if(type === "correct"){
+        playTone(740, 0.06, 0.04, "sine", 860, 0.0);
+        return;
+      }
+      if(type === "wrong"){
+        playTone(180, 0.12, 0.07, "sawtooth", 130, 0.0);
+        return;
+      }
+      if(type === "start"){
+        playTone(330, 0.08, 0.05, "sine", 480, 0.0);
+        playTone(520, 0.08, 0.04, "sine", 700, 0.08);
+        return;
+      }
+      if(type === "win"){
+        playTone(660, 0.10, 0.05, "sine", 860, 0.0);
+        playTone(860, 0.12, 0.05, "triangle", 1120, 0.10);
+        playTone(1120, 0.16, 0.05, "triangle", 1420, 0.22);
+        return;
+      }
+      if(type === "cheer"){
+        noiseBurst(0.20, 0.028, 500, 0.0);
+        playTone(520, 0.10, 0.02, "triangle", 660, 0.02);
+        playTone(760, 0.12, 0.018, "triangle", 910, 0.08);
+        return;
+      }
+      if(type === "boo"){
+        noiseBurst(0.18, 0.022, 300, 0.0);
+        playTone(210, 0.16, 0.02, "sawtooth", 160, 0.0);
+        return;
+      }
     }catch(e){}
   }
 
@@ -404,6 +508,11 @@
   function updateHud(){
     els.redScore.textContent = game.red;
     els.blueScore.textContent = game.blue;
+    els.redRounds.textContent = game.redRounds;
+    els.blueRounds.textContent = game.blueRounds;
+    els.targetText.textContent = config.target;
+    els.roundText.textContent = `${game.currentRound} / ${game.totalRounds}`;
+    els.roundScoreText.textContent = `${game.redRounds} - ${game.blueRounds}`;
     els.streakText.textContent = game.streak;
     els.powerText.textContent = game.power ? "FLÈCHE READY" : "Not ready";
     els.powerText.style.color = game.power ? "var(--gold)" : "inherit";
@@ -411,22 +520,74 @@
 
   function startGame(quick=false){
     readConfig();
-    if(quick){ config.topic="multiplication"; config.min=2; config.max=9; config.seconds=8; config.target=3; config.aiSkill=50; }
-    game.red=0; game.blue=0; game.streak=0; game.power=false; game.initiative = Math.random()<.5 ? "red" : "blue";
-    game.anim="salute"; game.animStart=performance.now(); game.confetti=[]; game.sparks=[]; game.crowd=0;
+    if(quick){
+      config.topic="multiplication"; config.min=2; config.max=9; config.seconds=8;
+      config.target=3; config.aiSkill=50; config.roundsToWin=1;
+    }
+    game.redRounds=0;
+    game.blueRounds=0;
+    game.currentRound=1;
+    game.totalRounds = config.roundsToWin * 2 - 1;
+    game.confetti=[]; game.sparks=[]; game.crowd=0;
     els.cover.classList.add("hidden");
     els.gameOver.classList.add("hidden");
+    toast("Press 1, 2, 3, or 4 to answer.");
+    beginRound(true);
+  }
+
+  function beginRound(firstRound=false){
+    clearInterval(game.timerId);
+    game.red=0;
+    game.blue=0;
+    game.streak=0;
+    game.power=false;
+    game.initiative = Math.random()<.5 ? "red" : "blue";
+    game.anim="salute";
+    game.animStart=performance.now();
+    els.questionPanel.classList.add("hidden");
+    els.phaseBanner.classList.add("hidden");
     updateHud();
     sound("start");
-    toast("Press 1, 2, 3, or 4 to answer.");
-    setTimeout(nextExchange, 900);
+    flash(firstRound ? `ROUND ${game.currentRound}` : `NEXT ROUND ${game.currentRound}`, "#ffd166");
+    speakRef(firstRound ? `En garde! Round ${game.currentRound}.` : `Round ${game.currentRound}. En garde!`);
+    setTimeout(() => {
+      speakRef("Allez!");
+      nextExchange();
+    }, 900);
   }
 
   function nextExchange(){
-    if(game.red >= config.target || game.blue >= config.target) return finish();
+    if(game.redRounds >= config.roundsToWin || game.blueRounds >= config.roundsToWin) return finish();
+    if(game.red >= config.target || game.blue >= config.target) return resolveRoundEnd();
     game.locked=false;
+    speakRef("Allez!", 1.06);
     if(game.initiative === "red") ask("attack");
     else ask("defend");
+  }
+
+  function resolveRoundEnd(){
+    clearInterval(game.timerId);
+    els.questionPanel.classList.add("hidden");
+    els.phaseBanner.classList.add("hidden");
+    const redWonRound = game.red > game.blue;
+    if(redWonRound){
+      game.redRounds++;
+      flash(`ROUND ${game.currentRound} TO RED!`, "#ffdf6e");
+      sound("cheer");
+    }else{
+      game.blueRounds++;
+      flash(`ROUND ${game.currentRound} TO BLUE!`, "#9ad8ff");
+      sound("boo");
+    }
+    speakRef("Halte!");
+    updateHud();
+
+    if(game.redRounds >= config.roundsToWin || game.blueRounds >= config.roundsToWin){
+      setTimeout(finish, 1600);
+    }else{
+      game.currentRound++;
+      setTimeout(() => beginRound(false), 1800);
+    }
   }
 
   function ask(phase){
@@ -545,6 +706,7 @@
           animate("blueParry");
           flash("PARRIED!", "#9ad8ff");
           sound("parry");
+          speakRef("Parry!");
           game.initiative = "blue";
           setTimeout(nextExchange, 1150);
         }else{
@@ -565,6 +727,7 @@
         animate("redParry");
         flash("PARRY!", "#ffd166");
         sound("parry");
+        speakRef("Parry!");
         setTimeout(() => ask("riposte"), 950);
       }else{
         score("blue", "BLUE TOUCH!");
@@ -581,6 +744,7 @@
   }
 
   function score(side, text){
+    sound("attack");
     if(side==="red"){
       game.red++;
       game.initiative = Math.random()<.62 ? "blue" : "red";
@@ -592,10 +756,12 @@
     }
     updateHud();
     flash(text, side==="red" ? "#ffdf6e" : "#9ad8ff");
-    sound("touch");
+    setTimeout(() => sound("touch"), 50);
+    setTimeout(() => sound(side==="red" ? "cheer" : "boo"), 140);
+    speakRef("Halte!");
     spawnSparks(side);
     if(game.red >= config.target || game.blue >= config.target){
-      setTimeout(finish, 1300);
+      setTimeout(resolveRoundEnd, 1300);
     }else{
       setTimeout(nextExchange, 1300);
     }
@@ -605,12 +771,13 @@
     els.questionPanel.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
     els.gameOver.classList.remove("hidden");
-    const won = game.red > game.blue;
-    $("overTitle").textContent = won ? "🏆 Red Wins!" : "Blue Wins!";
+    const won = game.redRounds > game.blueRounds;
+    $("overTitle").textContent = won ? "🏆 Red Wins the Match!" : "Blue Wins the Match!";
     $("overText").textContent = won
-      ? `Final score: Red ${game.red} – Blue ${game.blue}. Excellent footwork and Math accuracy.`
-      : `Final score: Red ${game.red} – Blue ${game.blue}. Train again and win the rematch.`;
+      ? `Match result: Red ${game.redRounds} rounds – Blue ${game.blueRounds} rounds. Last round score: Red ${game.red} – Blue ${game.blue}. Excellent footwork and Math accuracy.`
+      : `Match result: Red ${game.redRounds} rounds – Blue ${game.blueRounds} rounds. Last round score: Red ${game.red} – Blue ${game.blue}. Train again and win the rematch.`;
     animate(won ? "redWin" : "blueWin");
+    speakRef("Match over!");
     if(won) {
       sound("win");
       for(let i=0;i<90;i++) game.confetti.push({x:Math.random()*app.clientWidth,y:-20-Math.random()*80,vx:(Math.random()-.5)*3,vy:2+Math.random()*5,r:3+Math.random()*5,rot:Math.random()*6});
@@ -701,6 +868,7 @@
     els.gameOver.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
     els.cover.classList.remove("hidden");
+    if("speechSynthesis" in window) window.speechSynthesis.cancel();
     game.phase="cover"; animate("idle");
   });
 
@@ -716,13 +884,43 @@
   }
 
   function drawArena(w,h,now){
+    const floorY = h*.70;
+
     const grd = ctx.createLinearGradient(0,0,0,h);
-    grd.addColorStop(0,"rgba(30,79,126,.15)");
+    grd.addColorStop(0,"rgba(30,79,126,.12)");
+    grd.addColorStop(.5,"rgba(8,18,36,.1)");
     grd.addColorStop(1,"rgba(0,0,0,.28)");
     ctx.fillStyle = grd;
     ctx.fillRect(0,0,w,h);
 
-    const floorY = h*.70;
+    drawSpotlight(w*.18, 0, floorY-20, "rgba(255,255,255,.10)");
+    drawSpotlight(w*.50, 0, floorY-10, "rgba(255,230,160,.12)");
+    drawSpotlight(w*.82, 0, floorY-20, "rgba(255,255,255,.10)");
+
+    ctx.fillStyle = "rgba(255,255,255,.18)";
+    roundRect(ctx, w*.08, 18, w*.84, 10, 8, true);
+    for(let i=0;i<9;i++){
+      const lx = w*.11 + i*(w*.78/8);
+      ctx.fillStyle = i===4 ? "rgba(255,220,140,.95)" : "rgba(230,240,255,.85)";
+      ctx.beginPath();
+      ctx.arc(lx, 24, 8 + Math.sin(now/180+i)*.8, 0, Math.PI*2);
+      ctx.fill();
+    }
+
+    drawCrowdBand(0, floorY-92, w, 56, 24, now, 0.14);
+    drawCrowdBand(0, floorY-58, w, 42, 18, now, 0.11);
+
+    drawBanner(w*.06, 86, 130, 56, "#ff4757", "TEAM RED");
+    drawBanner(w*.5-90, 74, 180, 62, "#ffd166", "FINAL BOUT");
+    drawBanner(w*.83, 86, 130, 56, "#36a3ff", "TEAM BLUE");
+
+    drawPennants(w*.13, 148, "#ff4757", "#ffffff", "#ff4757");
+    drawPennants(w*.84, 148, "#36a3ff", "#ffffff", "#36a3ff");
+
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    roundRect(ctx, w*.47, floorY-116, w*.06, 58, 14, true);
+    drawReferee(w*.5, floorY-122);
+
     ctx.save();
     ctx.translate(0, Math.sin(now/900)*2);
     for(let i=0;i<18;i++){
@@ -734,10 +932,20 @@
 
     ctx.fillStyle = "rgba(255,255,255,.08)";
     roundRect(ctx, w*.08, floorY, w*.84, h*.08, 28, true);
-    ctx.fillStyle = "rgba(255,255,255,.18)";
-    roundRect(ctx, w*.12, floorY+h*.025, w*.76, h*.018, 999, true);
-    ctx.fillStyle = "rgba(255,209,102,.35)";
+
+    ctx.fillStyle = "rgba(255,255,255,.12)";
+    roundRect(ctx, w*.11, floorY+h*.018, w*.78, h*.034, 999, true);
+
+    ctx.fillStyle = "rgba(255,209,102,.42)";
     ctx.fillRect(w*.495, floorY-16, w*.01, h*.12);
+    for(let i=0;i<6;i++){
+      const mx = w*.17 + i*(w*.66/5);
+      ctx.fillStyle = "rgba(255,255,255,.24)";
+      ctx.fillRect(mx, floorY+h*.012, 3, h*.05);
+    }
+
+    drawGearTable(w*.06, floorY-8, "#ff4757");
+    drawGearTable(w*.88, floorY-8, "#36a3ff");
 
     for(let i=0;i<9;i++){
       const x = w*(.12+i*.095);
@@ -749,6 +957,118 @@
     ctx.fillStyle = "rgba(255,255,255,.16)";
     ctx.textAlign = "center";
     ctx.fillText("⚔︎     ⚔︎     ⚔︎", w/2, floorY+h*.16);
+  }
+
+  function drawSpotlight(x, yTop, yBottom, color){
+    const g = ctx.createLinearGradient(x, yTop, x, yBottom);
+    g.addColorStop(0, color);
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(x-18, yTop+18);
+    ctx.lineTo(x+18, yTop+18);
+    ctx.lineTo(x+120, yBottom);
+    ctx.lineTo(x-120, yBottom);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  function drawCrowdBand(x, y, width, height, count, now, alpha){
+    const spacing = width / count;
+    for(let i=0;i<count;i++){
+      const cx = x + i*spacing + spacing*.5;
+      const bob = Math.sin(now/260 + i)*1.6;
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.beginPath();
+      ctx.arc(cx, y + 10 + bob, 6, 0, Math.PI*2);
+      ctx.fill();
+      ctx.fillRect(cx-5, y+16+bob, 10, 18);
+      if(i % 7 === 0){
+        ctx.strokeStyle = i % 14 === 0 ? "rgba(255,71,87,.55)" : "rgba(54,163,255,.55)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(cx+4, y+18+bob);
+        ctx.lineTo(cx+16, y+5+bob);
+        ctx.lineTo(cx+28, y+12+bob);
+        ctx.stroke();
+      }
+    }
+  }
+
+  function drawBanner(x, y, width, height, color, text){
+    ctx.fillStyle = "rgba(255,255,255,.10)";
+    roundRect(ctx, x, y, width, height, 16, true);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    roundRect(ctx, x, y, width, height, 16, false);
+    ctx.fillStyle = color;
+    ctx.font = "1000 18px system-ui";
+    ctx.textAlign = "center";
+    ctx.fillText(text, x + width/2, y + height/2 + 6);
+  }
+
+  function drawPennants(x, y, c1, c2, c3){
+    const colors = [c1,c2,c3,c2,c1];
+    for(let i=0;i<5;i++){
+      const px = x + i*24;
+      ctx.strokeStyle = "rgba(255,255,255,.18)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(px, y);
+      ctx.lineTo(px+18, y);
+      ctx.stroke();
+      ctx.fillStyle = colors[i];
+      ctx.beginPath();
+      ctx.moveTo(px+3, y+2);
+      ctx.lineTo(px+16, y+2);
+      ctx.lineTo(px+8, y+18);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  function drawReferee(x, y){
+    ctx.save();
+    ctx.strokeStyle = "rgba(255,255,255,.30)";
+    ctx.fillStyle = "rgba(255,255,255,.24)";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(x, y, 10, 0, Math.PI*2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(x, y+10); ctx.lineTo(x, y+38);
+    ctx.moveTo(x, y+18); ctx.lineTo(x-16, y+28);
+    ctx.moveTo(x, y+18); ctx.lineTo(x+16, y+24);
+    ctx.moveTo(x, y+38); ctx.lineTo(x-10, y+56);
+    ctx.moveTo(x, y+38); ctx.lineTo(x+10, y+56);
+    ctx.stroke();
+    ctx.strokeStyle = "rgba(255,255,255,.45)";
+    ctx.beginPath();
+    ctx.moveTo(x+16, y+24); ctx.lineTo(x+26, y+12);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  function drawGearTable(x, y, accent){
+    ctx.fillStyle = "rgba(255,255,255,.08)";
+    roundRect(ctx, x, y, 70, 28, 12, true);
+    ctx.fillStyle = accent;
+    ctx.fillRect(x+4, y+4, 10, 20);
+    ctx.strokeStyle = "rgba(255,255,255,.45)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(x+38, y+14, 11, 9, 0, 0, Math.PI*2);
+    ctx.stroke();
+    for(let i=0;i<4;i++){
+      ctx.beginPath();
+      ctx.moveTo(x+32+i*4, y+8);
+      ctx.lineTo(x+32+i*4, y+20);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(x+52, y+19);
+    ctx.lineTo(x+64, y+9);
+    ctx.stroke();
   }
 
   function drawFencers(w,h,now){
