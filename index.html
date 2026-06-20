@@ -34,6 +34,27 @@
     border-radius:18px;padding:10px 14px;backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.22);
   }
   .scoreCard.blue{text-align:right}
+  .scoreCard.activeTurn{
+    outline:3px solid var(--gold);
+    box-shadow:0 0 0 5px rgba(255,209,102,.18),0 18px 46px rgba(255,209,102,.24);
+  }
+  .turnBadge{
+    display:none;margin-top:5px;padding:4px 8px;border-radius:999px;
+    background:linear-gradient(180deg,#ffe08a,#ffbd3d);color:#091120;
+    font-size:11px;font-weight:1000;letter-spacing:.06em;width:max-content;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+  .scoreCard.blue .turnBadge{margin-left:auto}
+  .scoreCard.activeTurn .turnBadge{display:block}
+  .answerSign{
+    display:none;margin-top:5px;padding:4px 10px;border-radius:999px;
+    font-size:11px;font-weight:1000;letter-spacing:.05em;width:max-content;
+    box-shadow:0 6px 18px rgba(0,0,0,.25);
+  }
+  .answerSign.show{display:block}
+  .answerSign.good{background:linear-gradient(180deg,#6cf0a2,#2bb86e);color:#081120}
+  .answerSign.bad{background:linear-gradient(180deg,#ff8d8d,#e04b4b);color:#fff}
+  .scoreCard.blue .answerSign{margin-left:auto}
   .miniRounds{margin-top:4px;font-size:12px;color:#d6e6ff;font-weight:800}
   .miniRounds b{font-size:15px;color:#fff}
   .name{font-weight:900;letter-spacing:.03em;font-size:clamp(13px,1.7vw,17px)}
@@ -88,6 +109,48 @@
   .ans.bad{background:linear-gradient(180deg,rgba(255,107,107,.95),rgba(150,44,57,.9))}
   .ans:disabled{cursor:default;opacity:.72}
 
+  .speedPanel{
+    position:absolute;z-index:12;left:50%;bottom:clamp(10px,2.2vh,26px);transform:translateX(-50%);
+    width:min(920px,96vw);border:1px solid rgba(255,209,102,.35);background:rgba(6,12,28,.82);
+    border-radius:24px;padding:14px;box-shadow:0 22px 80px rgba(0,0,0,.42);backdrop-filter:blur(16px);
+  }
+  .speedTitle{
+    text-align:center;font-size:clamp(18px,3.4vw,32px);font-weight:1000;color:var(--gold);margin-bottom:6px;
+  }
+  .speedQuestion{
+    text-align:center;font-size:clamp(30px,6vw,56px);font-weight:1000;margin:6px 0 12px;
+  }
+  .speedRace{
+    display:grid;grid-template-columns:1fr 1fr;gap:12px;
+  }
+  .speedSide{
+    border-radius:20px;padding:10px;border:2px solid rgba(255,255,255,.18);
+    background:rgba(255,255,255,.08);
+  }
+  .speedSide.redSide{border-color:rgba(255,71,87,.6)}
+  .speedSide.blueSide{border-color:rgba(54,163,255,.6)}
+  .speedSide h3{margin:0 0 8px;text-align:center;font-size:clamp(15px,2.4vw,22px)}
+  .speedSide.redSide h3{color:#ff8090}
+  .speedSide.blueSide h3{color:#8ed0ff}
+  .speedAnswers{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .speedBtn{
+    border:0;border-radius:16px;color:#fff;font-size:clamp(18px,3vw,30px);font-weight:1000;
+    padding:14px 6px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 8px 18px rgba(0,0,0,.18);
+  }
+  .redSide .speedBtn{background:linear-gradient(180deg,rgba(255,71,87,.78),rgba(120,20,33,.75))}
+  .blueSide .speedBtn{background:linear-gradient(180deg,rgba(54,163,255,.78),rgba(15,60,120,.75))}
+  .speedBtn.good{background:linear-gradient(180deg,rgba(56,217,130,.95),rgba(35,140,86,.9))}
+  .speedBtn.bad{background:linear-gradient(180deg,rgba(255,107,107,.95),rgba(150,44,57,.9))}
+  .speedBtn:disabled{opacity:.62;cursor:default}
+  .speedFeedback{
+    display:none;text-align:center;margin:0 0 8px;padding:6px 10px;border-radius:14px;
+    font-size:13px;font-weight:1000;letter-spacing:.05em;
+  }
+  .speedFeedback.show{display:block}
+  .speedFeedback.good{background:linear-gradient(180deg,#6cf0a2,#2bb86e);color:#081120}
+  .speedFeedback.bad{background:linear-gradient(180deg,#ff8d8d,#e04b4b);color:#fff}
+  .speedTimer{height:10px;width:100%;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:10px}
+  .speedTimerFill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#4de38a,#ffd166,#ff5b6b)}
   .cover,.gameOver{
     position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px;
     background:radial-gradient(circle at 50% 18%,rgba(65,160,240,.28),rgba(3,7,18,.85) 60%,rgba(0,0,0,.9));
@@ -172,8 +235,13 @@
     .topbar{grid-template-columns:1fr 1fr;top:8px}
     .matchTitle{grid-column:1/3;grid-row:2;justify-self:center;font-size:13px;padding:7px 12px}
     .matchSub{font-size:10px}
+    .turnBadge{font-size:10px;padding:3px 7px}
     .panel{padding:12px;border-radius:20px}
     .answers{grid-template-columns:repeat(2,1fr)}
+    .speedRace{grid-template-columns:1fr;gap:8px}
+    .speedPanel{padding:11px;border-radius:20px}
+    .speedAnswers{grid-template-columns:repeat(4,1fr)}
+    .speedBtn{padding:11px 4px;font-size:18px}
     .ruleGrid{grid-template-columns:1fr}
     .settings{grid-template-columns:repeat(2,1fr)}
     .timerWrap{width:100%;text-align:left}
@@ -187,8 +255,10 @@
   <canvas id="scene"></canvas>
 
   <div class="topbar">
-    <div class="scoreCard">
+    <div class="scoreCard" id="redCard">
       <div class="name red" id="redName">RED FENCER · YOU</div>
+      <div class="turnBadge" id="redTurnBadge">ANSWER NOW</div>
+      <div class="answerSign" id="redAnswerSign">✓ CORRECT</div>
       <div class="miniRounds">Rounds won: <b id="redRounds">0</b></div>
       <div class="score"><span id="redScore">0</span> <small>touches</small></div>
     </div>
@@ -198,8 +268,10 @@
         Round <b id="roundText">1 / 3</b> · First to <b id="targetText">5</b> touches · Rounds <b id="roundScoreText">0 - 0</b>
       </div>
     </div>
-    <div class="scoreCard blue">
+    <div class="scoreCard blue" id="blueCard">
       <div class="name blue" id="blueName">BLUE FENCER · RIVAL</div>
+      <div class="turnBadge" id="blueTurnBadge">ANSWER NOW</div>
+      <div class="answerSign" id="blueAnswerSign">✓ CORRECT</div>
       <div class="miniRounds">Rounds won: <b id="blueRounds">0</b></div>
       <div class="score"><span id="blueScore">0</span> <small>touches</small></div>
     </div>
@@ -235,14 +307,32 @@
     <div id="answers" class="answers"></div>
   </section>
 
+  <section id="speedPanel" class="speedPanel hidden">
+    <div class="speedTitle">Speed Duel — First Correct Answer Scores</div>
+    <div id="speedQuestion" class="speedQuestion">4 × 6 = ?</div>
+    <div class="speedRace">
+      <div class="speedSide redSide">
+        <h3>Red Player</h3>
+        <div id="redSpeedFeedback" class="speedFeedback">✓ CORRECT</div>
+        <div id="redSpeedAnswers" class="speedAnswers"></div>
+      </div>
+      <div class="speedSide blueSide">
+        <h3>Blue Player</h3>
+        <div id="blueSpeedFeedback" class="speedFeedback">✓ CORRECT</div>
+        <div id="blueSpeedAnswers" class="speedAnswers"></div>
+      </div>
+    </div>
+    <div class="speedTimer"><div id="speedTimerFill" class="speedTimerFill"></div></div>
+  </section>
+
   <section id="cover" class="cover">
     <div class="coverCard">
       <h1>Math <span>Fencing</span> Duel</h1>
-      <p>Red and Blue face off on the piste in a full sporting-event arena. Answer Math questions to attack, parry, and riposte.</p>
+      <p>Red and Blue face off on the piste in a full sporting-event arena. Choose turn-based fencing or Speed Duel, where the faster correct player scores.</p>
       <div class="ruleGrid">
-        <div class="rule"><b>⚡ Attack</b><span>When Red has initiative, solve the question to lunge and try to score a touch.</span></div>
+        <div class="rule"><b>⚡ Attack</b><span>Turn-based mode uses attack, parry, and riposte. Speed Duel gives the touch to the first correct player.</span></div>
         <div class="rule"><b>🛡️ Defend</b><span>In 1-player mode, defend against Blue. In 2-player mode, Red and Blue take turns attacking, parrying, and riposting.</span></div>
-        <div class="rule"><b>🔥 Power Move</b><span>Three correct answers in a row charges a Flèche. Your next successful attack cannot be parried.</span></div>
+        <div class="rule"><b>🔥 Power Move</b><span>Each player has their own streak. Three correct answers charges that player’s Flèche.</span></div>
       </div>
 
       <details class="teacher">
@@ -286,7 +376,8 @@
           <label>Game Mode
             <select id="gameMode">
               <option value="1p" selected>1 Player vs Blue AI</option>
-              <option value="2p">2 Players (shared device)</option>
+              <option value="2p">2 Players Turn-Based</option>
+              <option value="2p_speed">2 Players Speed Duel</option>
             </select>
           </label>
           <label>Blue Skill
@@ -348,6 +439,11 @@
 
   const els = {
     cover:$("cover"), gameOver:$("gameOver"), questionPanel:$("questionPanel"),
+    speedPanel:$("speedPanel"), speedQuestion:$("speedQuestion"), redSpeedAnswers:$("redSpeedAnswers"),
+    blueSpeedAnswers:$("blueSpeedAnswers"), speedTimerFill:$("speedTimerFill"),
+    redSpeedFeedback:$("redSpeedFeedback"), blueSpeedFeedback:$("blueSpeedFeedback"),
+    redCard:$("redCard"), blueCard:$("blueCard"), redTurnBadge:$("redTurnBadge"), blueTurnBadge:$("blueTurnBadge"),
+    redAnswerSign:$("redAnswerSign"), blueAnswerSign:$("blueAnswerSign"),
     redName:$("redName"), blueName:$("blueName"),
     redScore:$("redScore"), blueScore:$("blueScore"), redRounds:$("redRounds"), blueRounds:$("blueRounds"),
     targetText:$("targetText"), roundText:$("roundText"), roundScoreText:$("roundScoreText"),
@@ -364,6 +460,7 @@
   };
   const game = {
     red:0, blue:0, redRounds:0, blueRounds:0, currentRound:1, totalRounds:3,
+    redStreak:0, blueStreak:0, redPower:false, bluePower:false,
     streak:0, power:false, phase:"cover", phaseSide:"red", current:null, locked:false,
     initiative:"red", pendingAttacker:null, anim:"idle", animStart:0, lastFlash:"", answerDeadline:0, timerId:null,
     confetti:[], sparks:[], crowd:0
@@ -388,13 +485,67 @@
   function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
   function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
   function otherSide(side){ return side === "red" ? "blue" : "red"; }
+  function streakOf(side){ return side === "red" ? game.redStreak : game.blueStreak; }
+  function powerOf(side){ return side === "red" ? game.redPower : game.bluePower; }
+  function setPower(side, value){
+    if(side === "red") game.redPower = value;
+    else game.bluePower = value;
+    game.power = powerOf(game.phaseSide || "red");
+  }
+  function recordAnswerForSide(side, correct){
+    if(correct){
+      if(side === "red"){
+        game.redStreak++;
+        if(game.redStreak >= 3) game.redPower = true;
+      }else{
+        game.blueStreak++;
+        if(game.blueStreak >= 3) game.bluePower = true;
+      }
+    }else{
+      if(side === "red"){
+        game.redStreak = 0;
+        game.redPower = false;
+      }else{
+        game.blueStreak = 0;
+        game.bluePower = false;
+      }
+    }
+    game.streak = streakOf(side);
+    game.power = powerOf(side);
+  }
   function updatePlayerLabels(){
     els.redName.textContent = config.mode === "2p" ? "RED FENCER · PLAYER 1" : "RED FENCER · YOU";
     els.blueName.textContent = config.mode === "2p" ? "BLUE FENCER · PLAYER 2" : "BLUE FENCER · RIVAL";
   }
   function updateModeUI(){
     const blueSkillLabel = $("aiSkill").closest("label");
-    if(blueSkillLabel) blueSkillLabel.style.display = config.mode === "2p" ? "none" : "";
+    if(blueSkillLabel) blueSkillLabel.style.display = config.mode === "1p" ? "" : "none";
+  }
+
+  function setActiveTurn(side=null, action="ANSWER NOW"){
+    els.redCard.classList.toggle("activeTurn", side === "red");
+    els.blueCard.classList.toggle("activeTurn", side === "blue");
+    els.redTurnBadge.textContent = action;
+    els.blueTurnBadge.textContent = action;
+  }
+
+  function hideAnswerSigns(){
+    [els.redAnswerSign, els.blueAnswerSign, els.redSpeedFeedback, els.blueSpeedFeedback].forEach(el => {
+      if(el) el.classList.remove("show", "good", "bad");
+    });
+  }
+
+  function showAnswerSign(side, correct){
+    const targets = side === "red"
+      ? [els.redAnswerSign, els.redSpeedFeedback]
+      : [els.blueAnswerSign, els.blueSpeedFeedback];
+    const text = correct ? "✓ CORRECT" : "✗ WRONG";
+    targets.forEach(el => {
+      if(!el) return;
+      el.textContent = text;
+      el.classList.remove("good", "bad");
+      el.classList.add("show", correct ? "good" : "bad");
+    });
   }
 
   function speakRef(text, rate=1.0){
@@ -521,9 +672,10 @@
     els.targetText.textContent = config.target;
     els.roundText.textContent = `${game.currentRound} / ${game.totalRounds}`;
     els.roundScoreText.textContent = `${game.redRounds} - ${game.blueRounds}`;
-    els.streakText.textContent = game.streak;
-    els.powerText.textContent = game.power ? "FLÈCHE READY" : "Not ready";
-    els.powerText.style.color = game.power ? "var(--gold)" : "inherit";
+    const activeSide = game.phaseSide || "red";
+    els.streakText.textContent = streakOf(activeSide);
+    els.powerText.textContent = powerOf(activeSide) ? "FLÈCHE READY" : "Not ready";
+    els.powerText.style.color = powerOf(activeSide) ? "var(--gold)" : "inherit";
   }
 
   function startGame(quick=false){
@@ -555,6 +707,10 @@
     clearInterval(game.timerId);
     game.red=0;
     game.blue=0;
+    game.redStreak=0;
+    game.blueStreak=0;
+    game.redPower=false;
+    game.bluePower=false;
     game.streak=0;
     game.power=false;
     game.pendingAttacker=null;
@@ -563,7 +719,10 @@
     game.anim="salute";
     game.animStart=performance.now();
     els.questionPanel.classList.add("hidden");
+    els.speedPanel.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
+    setActiveTurn(null);
+    hideAnswerSigns();
     updateHud();
     sound("start");
     flash(firstRound ? `ROUND ${game.currentRound}` : `NEXT ROUND ${game.currentRound}`, "#ffd166");
@@ -582,6 +741,9 @@
       speakRef("Allez!", 1.06);
       if(game.initiative === "red") ask("attack", "red");
       else ask("defend", "red");
+    }else if(config.mode === "2p_speed"){
+      speakRef("Allez! Speed duel!", 1.0);
+      askSpeedDuel();
     }else{
       const side = game.initiative;
       speakRef(side === "red" ? "Red attacks!" : "Blue attacks!", 1.0);
@@ -592,7 +754,10 @@
   function resolveRoundEnd(){
     clearInterval(game.timerId);
     els.questionPanel.classList.add("hidden");
+    els.speedPanel.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
+    setActiveTurn(null);
+    hideAnswerSigns();
     const redWonRound = game.red > game.blue;
     if(redWonRound){
       game.redRounds++;
@@ -614,6 +779,100 @@
     }
   }
 
+  function askSpeedDuel(){
+    game.locked = false;
+    game.phase = "speed";
+    game.phaseSide = null;
+    game.current = makeQuestion();
+    els.questionPanel.classList.add("hidden");
+    els.phaseBanner.classList.add("hidden");
+    els.speedPanel.classList.remove("hidden");
+    hideAnswerSigns();
+    els.speedQuestion.textContent = game.current.text;
+    setActiveTurn("red", "RACE!");
+    els.blueCard.classList.add("activeTurn");
+    els.redTurnBadge.textContent = "RACE!";
+    els.blueTurnBadge.textContent = "RACE!";
+    buildSpeedAnswers(game.current);
+    animate("speedReady");
+    startSpeedTimer();
+  }
+
+  function buildSpeedAnswers(q){
+    els.redSpeedAnswers.innerHTML = "";
+    els.blueSpeedAnswers.innerHTML = "";
+    q.choices.forEach(choice => {
+      const redBtn = makeSpeedButton(choice, q, "red");
+      const blueBtn = makeSpeedButton(choice, q, "blue");
+      els.redSpeedAnswers.appendChild(redBtn);
+      els.blueSpeedAnswers.appendChild(blueBtn);
+    });
+  }
+
+  function makeSpeedButton(choice, q, side){
+    const b = document.createElement("button");
+    b.className = "speedBtn";
+    b.textContent = q.yesNo ? (choice === 1 ? "Yes" : "No") : choice;
+    b.dataset.value = String(choice);
+    b.addEventListener("click", () => handleSpeedAnswer(side, choice, b));
+    return b;
+  }
+
+  function startSpeedTimer(){
+    clearInterval(game.timerId);
+    const total = config.seconds;
+    game.answerDeadline = performance.now() + total*1000;
+    els.speedTimerFill.style.width = "100%";
+    game.timerId = setInterval(() => {
+      const left = Math.max(0, (game.answerDeadline - performance.now())/1000);
+      els.speedTimerFill.style.width = (left/total*100) + "%";
+      if(left <= 0){
+        clearInterval(game.timerId);
+        if(!game.locked){
+          game.locked = true;
+          els.speedPanel.classList.add("hidden");
+          setActiveTurn(null);
+          hideAnswerSigns();
+          flash("No touch!", "#ffffff");
+          setTimeout(nextExchange, 850);
+        }
+      }
+    }, 70);
+  }
+
+  function handleSpeedAnswer(side, value, btn){
+    if(game.locked) return;
+    const q = game.current;
+    const correct = value === q.answer;
+
+    if(correct){
+      game.locked = true;
+      clearInterval(game.timerId);
+      btn.classList.add("good");
+      sound("correct");
+      recordAnswerForSide(side, true);
+      showAnswerSign(side, true);
+      setActiveTurn(null);
+      setTimeout(() => {
+        els.speedPanel.classList.add("hidden");
+        score(side, side === "red" ? "RED SPEED TOUCH!" : "BLUE SPEED TOUCH!");
+      }, 240);
+    }else{
+      btn.classList.add("bad");
+      btn.disabled = true;
+      sound("wrong");
+      recordAnswerForSide(side, false);
+      showAnswerSign(side, false);
+
+      const sideButtons = side === "red" ? els.redSpeedAnswers.children : els.blueSpeedAnswers.children;
+      const allTried = [...sideButtons].every(x => x.disabled || Number(x.dataset.value) === q.answer);
+      if(allTried) {
+        [...sideButtons].forEach(x => x.disabled = true);
+      }
+    }
+    updateHud();
+  }
+
   function ask(phase, side="red"){
     game.locked = false;
     clearInterval(game.timerId);
@@ -623,12 +882,17 @@
 
     els.questionPanel.classList.remove("hidden", "attackMode", "defendMode", "riposteMode");
     els.phaseBanner.classList.add("hidden");
+    hideAnswerSigns();
+
+    setActiveTurn(side, phase === "attack" ? "ATTACK NOW" : phase === "defend" ? "DEFEND NOW" : "RIPOSTE NOW");
 
     const sideWord = side === "red" ? "Red" : "Blue";
+    game.power = powerOf(side);
+    game.streak = streakOf(side);
     if(phase==="attack"){
       els.questionPanel.classList.add("attackMode");
       els.phaseTitle.textContent = `${sideWord} Attack!`;
-      els.phaseSubtitle.textContent = config.mode === "2p" ? `${sideWord} answers to attack.` : (game.power ? "Answer to unleash a power attack." : "Answer to attack.");
+      els.phaseSubtitle.textContent = config.mode === "2p" ? `${sideWord} answers to attack.` : (powerOf(side) ? "Answer to unleash a power attack." : "Answer to attack.");
       animate(side === "red" ? "redReady" : "blueAttackReady");
     }else if(phase==="defend"){
       els.questionPanel.classList.add("defendMode");
@@ -689,12 +953,12 @@
       else if(btn && b === btn) b.classList.add("bad");
     });
 
+    const answerSide = game.phaseSide || "red";
+    recordAnswerForSide(answerSide, correct);
+    showAnswerSign(answerSide, correct);
     if(correct){
-      game.streak++;
-      if(game.streak >= 3) game.power = true;
       sound("correct");
     }else{
-      game.streak = 0;
       sound("wrong");
     }
     updateHud();
@@ -703,6 +967,7 @@
     setTimeout(() => {
       els.questionPanel.classList.add("hidden");
       els.phaseBanner.classList.add("hidden");
+      setActiveTurn(null);
       resolvePhase(phase, correct);
     }, 520);
   }
@@ -714,8 +979,8 @@
     if(config.mode === "1p"){
       if(phase === "attack"){
         if(correct){
-          const unstoppable = game.power;
-          if(unstoppable) game.power = false;
+          const unstoppable = powerOf("red");
+          if(unstoppable) setPower("red", false);
           updateHud();
           const blueParries = !unstoppable && Math.random()*100 < config.aiSkill;
           if(blueParries){
@@ -763,8 +1028,8 @@
     // 2-player mode
     if(phase === "attack"){
       if(correct){
-        const unstoppable = game.power;
-        if(unstoppable) game.power = false;
+        const unstoppable = powerOf(side);
+        if(unstoppable) setPower(side, false);
         updateHud();
         game.pendingAttacker = side;
         if(unstoppable){
@@ -827,7 +1092,10 @@
 
   function finish(){
     els.questionPanel.classList.add("hidden");
+    els.speedPanel.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
+    setActiveTurn(null);
+    hideAnswerSigns();
     els.gameOver.classList.remove("hidden");
     const won = game.redRounds > game.blueRounds;
     $("overTitle").textContent = won ? "🏆 Red Wins the Match!" : "Blue Wins the Match!";
@@ -929,7 +1197,11 @@
   });
   $("coverBtn").addEventListener("click", () => {
     els.gameOver.classList.add("hidden");
+    els.questionPanel.classList.add("hidden");
+    els.speedPanel.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
+    setActiveTurn(null);
+    hideAnswerSigns();
     els.cover.classList.remove("hidden");
     if("speechSynthesis" in window) window.speechSynthesis.cancel();
     readConfig();
@@ -1150,11 +1422,11 @@
 
     if(game.phase === "attack" && !els.questionPanel.classList.contains("hidden")){
       if(side === "red"){
-        redPose = game.power ? "powerReady" : "attackReady";
+        redPose = powerOf("red") ? "powerReady" : "attackReady";
         bluePose = "guard";
         redX += 22*Math.abs(Math.sin(now/190));
       }else{
-        bluePose = game.power ? "powerReady" : "attackReady";
+        bluePose = powerOf("blue") ? "powerReady" : "attackReady";
         redPose = "guard";
         blueX -= 22*Math.abs(Math.sin(now/190));
       }
@@ -1185,12 +1457,18 @@
     if(game.anim==="salute"){
       redPose = "salute"; bluePose = "salute";
     }
+    if(game.anim==="speedReady"){
+      redPose = "attackReady";
+      bluePose = "attackReady";
+      redX += 10*Math.abs(Math.sin(now/160));
+      blueX -= 10*Math.abs(Math.sin(now/160));
+    }
     if(game.anim==="redReady"){
-      redPose = game.power ? "powerReady" : "attackReady";
+      redPose = powerOf("red") ? "powerReady" : "attackReady";
       redX += 18*Math.abs(Math.sin(now/180));
     }
     if(game.anim==="blueAttackReady"){
-      bluePose = game.power ? "powerReady" : "attackReady";
+      bluePose = powerOf("blue") ? "powerReady" : "attackReady";
       blueX -= 18*Math.abs(Math.sin(now/180));
     }
     if(game.anim==="blueReady"){
