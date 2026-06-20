@@ -328,11 +328,11 @@
   <section id="cover" class="cover">
     <div class="coverCard">
       <h1>Math <span>Fencing</span> Duel</h1>
-      <p>Red and Blue face off on the piste in a full sporting-event arena. Choose turn-based fencing or Speed Duel, where the faster correct player scores.</p>
+      <p>Red and Blue face off on the piste in a full sporting-event arena. In Speed Duel, both players answer the same question and the faster correct player scores.</p>
       <div class="ruleGrid">
-        <div class="rule"><b>⚡ Attack</b><span>Turn-based mode uses attack, parry, and riposte. Speed Duel gives the touch to the first correct player.</span></div>
-        <div class="rule"><b>🛡️ Defend</b><span>In 1-player mode, defend against Blue. In 2-player mode, Red and Blue take turns attacking, parrying, and riposting.</span></div>
-        <div class="rule"><b>🔥 Power Move</b><span>Each player has their own streak. Three correct answers charges that player’s Flèche.</span></div>
+        <div class="rule"><b>⚡ 1 Player</b><span>Play as Red against Blue AI. Answer to attack, defend, and riposte.</span></div>
+        <div class="rule"><b>🏁 2 Players Speed Duel</b><span>Both players answer the same question. The first correct player scores the touch.</span></div>
+        <div class="rule"><b>🔥 Power Move</b><span>Three correct answers charges a Flèche power attack.</span></div>
       </div>
 
       <details class="teacher">
@@ -376,7 +376,6 @@
           <label>Game Mode
             <select id="gameMode">
               <option value="1p" selected>1 Player vs Blue AI</option>
-              <option value="2p">2 Players Turn-Based</option>
               <option value="2p_speed">2 Players Speed Duel</option>
             </select>
           </label>
@@ -475,6 +474,7 @@
     config.seconds = parseInt($("seconds").value);
     config.target = parseInt($("target").value);
     config.mode = $("gameMode").value;
+    if(config.mode === "2p") config.mode = "2p_speed";
     config.aiSkill = parseInt($("aiSkill").value);
     config.sound = $("soundOn").value === "1";
     config.roundsToWin = parseInt($("roundsToWin").value || "2");
@@ -699,7 +699,7 @@
     game.confetti=[]; game.sparks=[]; game.crowd=0;
     els.cover.classList.add("hidden");
     els.gameOver.classList.add("hidden");
-    toast(config.mode === "2p" ? "2-player mode: share one device and take turns answering." : "Press 1, 2, 3, or 4 to answer.");
+    toast(config.mode === "2p_speed" ? "Speed Duel: fastest correct answer scores." : "Press 1, 2, 3, or 4 to answer.");
     beginRound(true);
   }
 
@@ -741,13 +741,9 @@
       speakRef("Allez!", 1.06);
       if(game.initiative === "red") ask("attack", "red");
       else ask("defend", "red");
-    }else if(config.mode === "2p_speed"){
+    }else{
       speakRef("Allez! Speed duel!", 1.0);
       askSpeedDuel();
-    }else{
-      const side = game.initiative;
-      speakRef(side === "red" ? "Red attacks!" : "Blue attacks!", 1.0);
-      ask("attack", side);
     }
   }
 
