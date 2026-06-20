@@ -65,10 +65,10 @@
     border-radius:24px;padding:14px;box-shadow:0 22px 80px rgba(0,0,0,.42);backdrop-filter:blur(16px);
   }
   .phase{
-    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px;
   }
   .phase h2{margin:0;font-size:clamp(18px,2.8vw,28px);line-height:1.1}
-  .phase p{margin:4px 0 0;color:var(--muted);font-size:14px}
+  .phase p{display:none}
   .timerWrap{min-width:150px;text-align:right}
   .timerText{font-size:14px;color:var(--muted);font-weight:800}
   .timerBar{height:11px;width:160px;border-radius:999px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:6px}
@@ -163,11 +163,8 @@
     from{transform:translateX(0) scale(1)}
     to{transform:translateX(8px) scale(1.08)}
   }
-  .toast{
-    position:absolute;right:12px;bottom:12px;z-index:30;background:rgba(0,0,0,.5);color:white;padding:10px 12px;border-radius:14px;
-    border:1px solid rgba(255,255,255,.18);font-size:13px;opacity:.0;transition:.25s;pointer-events:none
-  }
-  .toast.show{opacity:1}
+  .toast{display:none!important}
+  .toast.show{display:none!important}
   .hidden{display:none!important}
 
   @media (max-width:700px){
@@ -191,7 +188,7 @@
 
   <div class="topbar">
     <div class="scoreCard">
-      <div class="name red">RED FENCER · YOU</div>
+      <div class="name red" id="redName">RED FENCER · YOU</div>
       <div class="miniRounds">Rounds won: <b id="redRounds">0</b></div>
       <div class="score"><span id="redScore">0</span> <small>touches</small></div>
     </div>
@@ -202,7 +199,7 @@
       </div>
     </div>
     <div class="scoreCard blue">
-      <div class="name blue">BLUE FENCER · RIVAL</div>
+      <div class="name blue" id="blueName">BLUE FENCER · RIVAL</div>
       <div class="miniRounds">Rounds won: <b id="blueRounds">0</b></div>
       <div class="score"><span id="blueScore">0</span> <small>touches</small></div>
     </div>
@@ -244,7 +241,7 @@
       <p>Red and Blue face off on the piste in a full sporting-event arena. Answer Math questions to attack, parry, and riposte.</p>
       <div class="ruleGrid">
         <div class="rule"><b>⚡ Attack</b><span>When Red has initiative, solve the question to lunge and try to score a touch.</span></div>
-        <div class="rule"><b>🛡️ Defend</b><span>When Blue attacks, solve the question to parry. Then answer again to riposte.</span></div>
+        <div class="rule"><b>🛡️ Defend</b><span>In 1-player mode, defend against Blue. In 2-player mode, Red and Blue take turns attacking, parrying, and riposting.</span></div>
         <div class="rule"><b>🔥 Power Move</b><span>Three correct answers in a row charges a Flèche. Your next successful attack cannot be parried.</span></div>
       </div>
 
@@ -284,6 +281,12 @@
               <option selected>5</option>
               <option>7</option>
               <option>10</option>
+            </select>
+          </label>
+          <label>Game Mode
+            <select id="gameMode">
+              <option value="1p" selected>1 Player vs Blue AI</option>
+              <option value="2p">2 Players (shared device)</option>
             </select>
           </label>
           <label>Blue Skill
@@ -345,6 +348,7 @@
 
   const els = {
     cover:$("cover"), gameOver:$("gameOver"), questionPanel:$("questionPanel"),
+    redName:$("redName"), blueName:$("blueName"),
     redScore:$("redScore"), blueScore:$("blueScore"), redRounds:$("redRounds"), blueRounds:$("blueRounds"),
     targetText:$("targetText"), roundText:$("roundText"), roundScoreText:$("roundScoreText"),
     streakText:$("streakText"), powerText:$("powerText"), flash:$("flash"),
@@ -356,12 +360,12 @@
 
   const config = {
     topic:"multiplication", min:2, max:12, multipleOf:4, seconds:8, target:5, aiSkill:62,
-    sound:true, roundsToWin:2, voice:true
+    sound:true, roundsToWin:2, voice:true, mode:"1p"
   };
   const game = {
     red:0, blue:0, redRounds:0, blueRounds:0, currentRound:1, totalRounds:3,
-    streak:0, power:false, phase:"cover", current:null, locked:false,
-    initiative:"red", anim:"idle", animStart:0, lastFlash:"", answerDeadline:0, timerId:null,
+    streak:0, power:false, phase:"cover", phaseSide:"red", current:null, locked:false,
+    initiative:"red", pendingAttacker:null, anim:"idle", animStart:0, lastFlash:"", answerDeadline:0, timerId:null,
     confetti:[], sparks:[], crowd:0
   };
 
@@ -373,6 +377,7 @@
     config.multipleOf = clamp(parseInt($("multipleOf").value || "4"),2,12);
     config.seconds = parseInt($("seconds").value);
     config.target = parseInt($("target").value);
+    config.mode = $("gameMode").value;
     config.aiSkill = parseInt($("aiSkill").value);
     config.sound = $("soundOn").value === "1";
     config.roundsToWin = parseInt($("roundsToWin").value || "2");
@@ -382,6 +387,15 @@
   function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
   function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
   function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function otherSide(side){ return side === "red" ? "blue" : "red"; }
+  function updatePlayerLabels(){
+    els.redName.textContent = config.mode === "2p" ? "RED FENCER · PLAYER 1" : "RED FENCER · YOU";
+    els.blueName.textContent = config.mode === "2p" ? "BLUE FENCER · PLAYER 2" : "BLUE FENCER · RIVAL";
+  }
+  function updateModeUI(){
+    const blueSkillLabel = $("aiSkill").closest("label");
+    if(blueSkillLabel) blueSkillLabel.style.display = config.mode === "2p" ? "none" : "";
+  }
 
   function speakRef(text, rate=1.0){
     if(!config.voice || !("speechSynthesis" in window)) return;
@@ -499,6 +513,7 @@
   resize();
 
   function updateHud(){
+    updatePlayerLabels();
     els.redScore.textContent = game.red;
     els.blueScore.textContent = game.blue;
     els.redRounds.textContent = game.redRounds;
@@ -514,9 +529,17 @@
   function startGame(quick=false){
     readConfig();
     if(quick){
-      config.topic="multiplication"; config.min=2; config.max=9; config.seconds=8;
-      config.target=3; config.aiSkill=50; config.roundsToWin=1;
+      config.topic="multiplication";
+      config.min=2;
+      config.max=9;
+      config.seconds=8;
+      config.target=3;
+      config.aiSkill=50;
+      config.roundsToWin=1;
+      config.mode="1p";
+      $("gameMode").value = "1p";
     }
+    updateModeUI();
     game.redRounds=0;
     game.blueRounds=0;
     game.currentRound=1;
@@ -524,7 +547,7 @@
     game.confetti=[]; game.sparks=[]; game.crowd=0;
     els.cover.classList.add("hidden");
     els.gameOver.classList.add("hidden");
-    toast("Press 1, 2, 3, or 4 to answer.");
+    toast(config.mode === "2p" ? "2-player mode: share one device and take turns answering." : "Press 1, 2, 3, or 4 to answer.");
     beginRound(true);
   }
 
@@ -534,6 +557,8 @@
     game.blue=0;
     game.streak=0;
     game.power=false;
+    game.pendingAttacker=null;
+    game.phaseSide="red";
     game.initiative = Math.random()<.5 ? "red" : "blue";
     game.anim="salute";
     game.animStart=performance.now();
@@ -553,9 +578,15 @@
     if(game.redRounds >= config.roundsToWin || game.blueRounds >= config.roundsToWin) return finish();
     if(game.red >= config.target || game.blue >= config.target) return resolveRoundEnd();
     game.locked=false;
-    speakRef("Allez!", 1.06);
-    if(game.initiative === "red") ask("attack");
-    else ask("defend");
+    if(config.mode === "1p"){
+      speakRef("Allez!", 1.06);
+      if(game.initiative === "red") ask("attack", "red");
+      else ask("defend", "red");
+    }else{
+      const side = game.initiative;
+      speakRef(side === "red" ? "Red attacks!" : "Blue attacks!", 1.0);
+      ask("attack", side);
+    }
   }
 
   function resolveRoundEnd(){
@@ -583,44 +614,32 @@
     }
   }
 
-  function ask(phase){
-    // Important: riposte questions are opened directly after a successful parry.
-    // Unlock here so the next answer can always be selected.
+  function ask(phase, side="red"){
     game.locked = false;
     clearInterval(game.timerId);
     game.phase = phase;
+    game.phaseSide = side;
     game.current = makeQuestion();
 
     els.questionPanel.classList.remove("hidden", "attackMode", "defendMode", "riposteMode");
-    els.phaseBanner.classList.remove("hidden", "attack", "defend", "riposte");
+    els.phaseBanner.classList.add("hidden");
 
+    const sideWord = side === "red" ? "Red" : "Blue";
     if(phase==="attack"){
       els.questionPanel.classList.add("attackMode");
-      els.phaseBanner.classList.add("attack");
-      els.phaseIcon.textContent = game.power ? "🔥➡️" : "➡️";
-      els.phaseWords.textContent = game.power ? "RED POWER ATTACK!" : "RED ATTACKS!";
-      els.phaseHint.textContent = "Solve it to lunge and score.";
-      els.phaseTitle.textContent = game.power ? "Power Attack!" : "Attack!";
-      els.phaseSubtitle.textContent = game.power ? "Answer to unleash a power attack." : "Answer to attack.";
-      animate("redReady");
+      els.phaseTitle.textContent = `${sideWord} Attack!`;
+      els.phaseSubtitle.textContent = config.mode === "2p" ? `${sideWord} answers to attack.` : (game.power ? "Answer to unleash a power attack." : "Answer to attack.");
+      animate(side === "red" ? "redReady" : "blueAttackReady");
     }else if(phase==="defend"){
       els.questionPanel.classList.add("defendMode");
-      els.phaseBanner.classList.add("defend");
-      els.phaseIcon.textContent = "⬅️🛡️";
-      els.phaseWords.textContent = "BLUE ATTACKS — DEFEND!";
-      els.phaseHint.textContent = "Solve it to parry Blue’s blade.";
-      els.phaseTitle.textContent = "Defend!";
-      els.phaseSubtitle.textContent = "Answer to parry.";
-      animate("blueReady");
+      els.phaseTitle.textContent = `${sideWord} Defend!`;
+      els.phaseSubtitle.textContent = `${sideWord} answers to parry.`;
+      animate(side === "red" ? "blueReady" : "blueDefendReady");
     }else{
       els.questionPanel.classList.add("riposteMode");
-      els.phaseBanner.classList.add("riposte");
-      els.phaseIcon.textContent = "↩️⚔️";
-      els.phaseWords.textContent = "RIPOSTE!";
-      els.phaseHint.textContent = "You blocked. Solve it to strike back.";
-      els.phaseTitle.textContent = "Riposte!";
-      els.phaseSubtitle.textContent = "Answer to counter-attack.";
-      animate("redRiposteReady");
+      els.phaseTitle.textContent = `${sideWord} Riposte!`;
+      els.phaseSubtitle.textContent = `${sideWord} answers to counter-attack.`;
+      animate(side === "red" ? "redRiposteReady" : "blueRiposteReady");
     }
     els.question.textContent = game.current.text;
     buildAnswers(game.current);
@@ -689,49 +708,95 @@
   }
 
   function resolvePhase(phase, correct){
+    const side = game.phaseSide || "red";
+    const foe = otherSide(side);
+
+    if(config.mode === "1p"){
+      if(phase === "attack"){
+        if(correct){
+          const unstoppable = game.power;
+          if(unstoppable) game.power = false;
+          updateHud();
+          const blueParries = !unstoppable && Math.random()*100 < config.aiSkill;
+          if(blueParries){
+            animate("blueParry");
+            flash("PARRIED!", "#9ad8ff");
+            sound("parry");
+            speakRef("Parry!");
+            game.initiative = "blue";
+            setTimeout(nextExchange, 1150);
+          }else{
+            score("red", unstoppable ? "FLÈCHE TOUCH!" : "TOUCHÉ!");
+          }
+        }else{
+          animate("blueCounter");
+          const aiScores = Math.random()*100 < config.aiSkill + 12;
+          if(aiScores) score("blue", "COUNTER TOUCH!");
+          else {
+            flash("Blue missed!", "#ffffff");
+            game.initiative = "red";
+            setTimeout(nextExchange, 1050);
+          }
+        }
+      }else if(phase === "defend"){
+        if(correct){
+          animate("redParry");
+          flash("PARRY!", "#ffd166");
+          sound("parry");
+          speakRef("Parry!");
+          setTimeout(() => ask("riposte", "red"), 950);
+        }else{
+          score("blue", "BLUE TOUCH!");
+        }
+      }else if(phase === "riposte"){
+        if(correct) score("red", "RIPOSTE TOUCH!");
+        else {
+          animate("reset");
+          flash("Riposte missed!", "#ffffff");
+          game.initiative = Math.random()<.55 ? "blue" : "red";
+          setTimeout(nextExchange, 1100);
+        }
+      }
+      return;
+    }
+
+    // 2-player mode
     if(phase === "attack"){
       if(correct){
         const unstoppable = game.power;
         if(unstoppable) game.power = false;
         updateHud();
-        const blueParries = !unstoppable && Math.random()*100 < config.aiSkill;
-        if(blueParries){
-          animate("blueParry");
-          flash("PARRIED!", "#9ad8ff");
-          sound("parry");
-          speakRef("Parry!");
-          game.initiative = "blue";
-          setTimeout(nextExchange, 1150);
+        game.pendingAttacker = side;
+        if(unstoppable){
+          score(side, side === "red" ? "RED FLÈCHE TOUCH!" : "BLUE FLÈCHE TOUCH!");
         }else{
-          score("red", unstoppable ? "FLÈCHE TOUCH!" : "TOUCHÉ!");
+          setTimeout(() => ask("defend", foe), 700);
         }
       }else{
-        animate("blueCounter");
-        const aiScores = Math.random()*100 < config.aiSkill + 12;
-        if(aiScores) score("blue", "COUNTER TOUCH!");
-        else {
-          flash("Blue missed!", "#ffffff");
-          game.initiative = "red";
-          setTimeout(nextExchange, 1050);
-        }
+        animate("reset");
+        flash(`${side === "red" ? "Red" : "Blue"} missed!`, "#ffffff");
+        game.initiative = foe;
+        setTimeout(nextExchange, 950);
       }
     }else if(phase === "defend"){
       if(correct){
-        animate("redParry");
-        flash("PARRY!", "#ffd166");
+        animate(side === "red" ? "redParry" : "blueParry");
+        flash("PARRY!", side === "red" ? "#ffd166" : "#9ad8ff");
         sound("parry");
         speakRef("Parry!");
-        setTimeout(() => ask("riposte"), 950);
+        setTimeout(() => ask("riposte", side), 950);
       }else{
-        score("blue", "BLUE TOUCH!");
+        const attacker = game.pendingAttacker || foe;
+        score(attacker, attacker === "red" ? "RED TOUCH!" : "BLUE TOUCH!");
       }
     }else if(phase === "riposte"){
-      if(correct) score("red", "RIPOSTE TOUCH!");
-      else {
+      if(correct){
+        score(side, side === "red" ? "RED RIPOSTE TOUCH!" : "BLUE RIPOSTE TOUCH!");
+      }else{
         animate("reset");
         flash("Riposte missed!", "#ffffff");
-        game.initiative = Math.random()<.55 ? "blue" : "red";
-        setTimeout(nextExchange, 1100);
+        game.initiative = side;
+        setTimeout(nextExchange, 1050);
       }
     }
   }
@@ -857,11 +922,19 @@
   $("startBtn").addEventListener("click", () => startGame(false));
   $("demoBtn").addEventListener("click", () => startGame(true));
   $("againBtn").addEventListener("click", () => startGame(false));
+  $("gameMode").addEventListener("change", () => {
+    readConfig();
+    updateModeUI();
+    updateHud();
+  });
   $("coverBtn").addEventListener("click", () => {
     els.gameOver.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
     els.cover.classList.remove("hidden");
     if("speechSynthesis" in window) window.speechSynthesis.cancel();
+    readConfig();
+    updateModeUI();
+    updateHud();
     game.phase="cover"; animate("idle");
   });
 
@@ -1073,24 +1146,42 @@
     let redPose = "guard", bluePose = "guard";
     let redH = 0, blueH = 0;
 
-    // Question states: show pupils what is happening before they answer.
+    const side = game.phaseSide || "red";
+
     if(game.phase === "attack" && !els.questionPanel.classList.contains("hidden")){
-      redPose = game.power ? "powerReady" : "attackReady";
-      bluePose = "guard";
-      redX += 22*Math.abs(Math.sin(now/190));
+      if(side === "red"){
+        redPose = game.power ? "powerReady" : "attackReady";
+        bluePose = "guard";
+        redX += 22*Math.abs(Math.sin(now/190));
+      }else{
+        bluePose = game.power ? "powerReady" : "attackReady";
+        redPose = "guard";
+        blueX -= 22*Math.abs(Math.sin(now/190));
+      }
     }
     if(game.phase === "defend" && !els.questionPanel.classList.contains("hidden")){
-      redPose = "parryReady";
-      bluePose = "attackReady";
-      blueX -= 22*Math.abs(Math.sin(now/190));
+      if(side === "red"){
+        redPose = "parryReady";
+        bluePose = "attackReady";
+        blueX -= 22*Math.abs(Math.sin(now/190));
+      }else{
+        bluePose = "parryReady";
+        redPose = "attackReady";
+        redX += 22*Math.abs(Math.sin(now/190));
+      }
     }
     if(game.phase === "riposte" && !els.questionPanel.classList.contains("hidden")){
-      redPose = "riposteReady";
-      bluePose = "offBalance";
-      redX += 16*Math.abs(Math.sin(now/160));
+      if(side === "red"){
+        redPose = "riposteReady";
+        bluePose = "offBalance";
+        redX += 16*Math.abs(Math.sin(now/160));
+      }else{
+        bluePose = "riposteReady";
+        redPose = "offBalance";
+        blueX -= 16*Math.abs(Math.sin(now/160));
+      }
     }
 
-    // Resolution animations after an answer.
     if(game.anim==="salute"){
       redPose = "salute"; bluePose = "salute";
     }
@@ -1098,14 +1189,27 @@
       redPose = game.power ? "powerReady" : "attackReady";
       redX += 18*Math.abs(Math.sin(now/180));
     }
+    if(game.anim==="blueAttackReady"){
+      bluePose = game.power ? "powerReady" : "attackReady";
+      blueX -= 18*Math.abs(Math.sin(now/180));
+    }
     if(game.anim==="blueReady"){
       redPose = "parryReady";
       bluePose = "attackReady";
       blueX -= 18*Math.abs(Math.sin(now/180));
     }
+    if(game.anim==="blueDefendReady"){
+      bluePose = "parryReady";
+      redPose = "attackReady";
+      redX += 18*Math.abs(Math.sin(now/180));
+    }
     if(game.anim==="redRiposteReady"){
       redPose = "riposteReady"; bluePose = "offBalance";
       redX += 12*Math.abs(Math.sin(now/150));
+    }
+    if(game.anim==="blueRiposteReady"){
+      bluePose = "riposteReady"; redPose = "offBalance";
+      blueX -= 12*Math.abs(Math.sin(now/150));
     }
     if(game.anim==="redHit"){
       redPose = "lunge"; bluePose = "hitRecoil";
@@ -1126,7 +1230,7 @@
     if(game.anim==="blueParry"){
       redPose = "blocked"; bluePose = "parry";
       redX += 82*Math.sin(ease*Math.PI);
-      drawActionWord("PARRIED!", w*.50, floorY-235, "#9ad8ff", now);
+      drawActionWord("PARRY!", w*.50, floorY-235, "#9ad8ff", now);
       drawBladeClash(w*.50, floorY-155, now);
     }
     if(game.anim==="redWin"){
@@ -1334,15 +1438,7 @@
     ctx.arc(bladeEnd.x, bladeEnd.y, 3.2, 0, Math.PI*2);
     ctx.fill();
 
-    // Small pose label above the active fencer.
-    if(["attackReady","powerReady","lunge","parryReady","parry","riposteReady"].includes(pose)){
-      const poseText = pose.includes("parry") ? "PARRY" : pose.includes("riposte") ? "RIPOSTE" : "ATTACK";
-      ctx.shadowBlur = 0;
-      ctx.font = "1000 13px system-ui";
-      ctx.textAlign = "center";
-      ctx.fillStyle = poseText === "PARRY" ? "#ffd166" : color;
-      ctx.fillText(poseText, x, head.y-34);
-    }
+    // Pose labels removed to reduce repeated messages.
 
     // Name label
     ctx.shadowBlur = 0;
@@ -1377,15 +1473,7 @@
   }
 
   function drawActionWord(text, x, y, color, now){
-    ctx.save();
-    ctx.textAlign = "center";
-    ctx.font = `1000 ${Math.max(22, Math.min(44, app.clientWidth*.045))}px system-ui`;
-    ctx.fillStyle = color;
-    ctx.shadowColor = "rgba(0,0,0,.65)";
-    ctx.shadowBlur = 12;
-    ctx.translate(0, Math.sin(now/100)*3);
-    ctx.fillText(text, x, y);
-    ctx.restore();
+    // Hidden to keep the mobile screen clean. The fencer poses already show the action.
   }
 
   function drawPhaseArrows(w,h,now){
@@ -1424,6 +1512,8 @@
     if(fill) ctx.fill(); else ctx.stroke();
   }
 
+  readConfig();
+  updateModeUI();
   updateHud();
   draw();
 })();
