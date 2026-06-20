@@ -27,21 +27,6 @@
   .broadcastOverlay{
     position:absolute;inset:0;z-index:4;pointer-events:none;
   }
-  .liveBug{
-    position:absolute;left:12px;top:116px;display:flex;align-items:center;gap:7px;
-    background:rgba(5,10,22,.58);border:1px solid rgba(255,255,255,.18);
-    color:#fff;border-radius:999px;padding:5px 10px;font-weight:1000;font-size:12px;
-    box-shadow:0 8px 22px rgba(0,0,0,.22);backdrop-filter:blur(8px);
-  }
-  .liveDot{
-    width:8px;height:8px;border-radius:50%;background:#ff4757;
-    box-shadow:0 0 12px rgba(255,71,87,.95);animation:blinkLive .8s infinite alternate;
-  }
-  .cameraTag{
-    position:absolute;right:12px;top:116px;background:rgba(5,10,22,.58);
-    border:1px solid rgba(255,255,255,.18);color:#d7e8ff;border-radius:999px;
-    padding:5px 10px;font-weight:1000;font-size:12px;box-shadow:0 8px 22px rgba(0,0,0,.22);backdrop-filter:blur(8px);
-  }
   @keyframes blinkLive{from{opacity:.45}to{opacity:1}}
   .topbar{
     position:absolute;left:clamp(8px,1.6vw,16px);right:clamp(8px,1.6vw,16px);top:8px;
@@ -178,6 +163,13 @@
   .speedFeedback.show{display:block}
   .speedFeedback.good{background:linear-gradient(180deg,#6cf0a2,#2bb86e);color:#081120}
   .speedFeedback.bad{background:linear-gradient(180deg,#ff8d8d,#e04b4b);color:#fff}
+  .speedTimerLabel{
+    margin-top:6px;text-align:center;
+    background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.18);
+    border-radius:999px;padding:4px 10px;
+    font-size:11px;font-weight:1000;letter-spacing:.05em;color:#eef6ff;
+  }
+  .speedTimerLabel b{color:#fff}
   .speedTimer{height:7px;width:100%;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:6px}
   .speedTimerFill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#4de38a,#ffd166,#ff5b6b)}
   .cover,.gameOver{
@@ -261,8 +253,6 @@
 
   @media (max-width:700px){
     #app{min-height:560px}
-    .liveBug{top:108px;left:8px;font-size:10px;padding:4px 8px}
-    .cameraTag{top:108px;right:8px;font-size:10px;padding:4px 8px}
     .topbar{grid-template-columns:1fr 1fr;top:5px;gap:7px}
     .scoreCard{padding:6px 9px;border-radius:13px}
     .name{font-size:10px}
@@ -285,6 +275,7 @@
     .speedAnswers{grid-template-columns:repeat(2,1fr);gap:4px}
     .speedBtn{padding:8px 1px;font-size:14px;border-radius:10px}
     .speedFeedback{font-size:8px;padding:3px 5px}
+    .speedTimerLabel{font-size:9px;padding:3px 8px;margin-top:5px}
     .ruleGrid{grid-template-columns:1fr}
     .settings{grid-template-columns:repeat(2,1fr)}
     .timerWrap{width:100%;text-align:left}
@@ -296,11 +287,6 @@
 <body>
 <div id="app">
   <canvas id="scene"></canvas>
-
-  <div class="broadcastOverlay">
-    <div class="liveBug"><span class="liveDot"></span> LIVE · MATH SPORTS</div>
-    <div class="cameraTag">CAM 1 · PISTE VIEW</div>
-  </div>
 
   <div class="topbar">
     <div class="scoreCard" id="redCard">
@@ -370,6 +356,7 @@
         <div id="blueSpeedAnswers" class="speedAnswers"></div>
       </div>
     </div>
+    <div class="speedTimerLabel">TIME LEFT: <b><span id="speedTimeText">8.0</span>s</b></div>
     <div class="speedTimer"><div id="speedTimerFill" class="speedTimerFill"></div></div>
   </section>
 
@@ -447,12 +434,7 @@
               <option value="3">3 rounds</option>
             </select>
           </label>
-          <label>Referee Voice
-            <select id="voiceOn">
-              <option value="1" selected>On</option>
-              <option value="0">Off</option>
-            </select>
-          </label>
+
         </div>
       </details>
 
@@ -487,7 +469,7 @@
   const els = {
     cover:$("cover"), gameOver:$("gameOver"), questionPanel:$("questionPanel"),
     speedPanel:$("speedPanel"), speedQuestion:$("speedQuestion"), redSpeedAnswers:$("redSpeedAnswers"),
-    blueSpeedAnswers:$("blueSpeedAnswers"), speedTimerFill:$("speedTimerFill"),
+    blueSpeedAnswers:$("blueSpeedAnswers"), speedTimerFill:$("speedTimerFill"), speedTimeText:$("speedTimeText"),
     redSpeedFeedback:$("redSpeedFeedback"), blueSpeedFeedback:$("blueSpeedFeedback"),
     redCard:$("redCard"), blueCard:$("blueCard"), redTurnBadge:$("redTurnBadge"), blueTurnBadge:$("blueTurnBadge"),
     redAnswerSign:$("redAnswerSign"), blueAnswerSign:$("blueAnswerSign"),
@@ -503,7 +485,7 @@
 
   const config = {
     topic:"multiplication", min:2, max:12, multipleOf:4, seconds:8, target:5, aiSkill:62,
-    sound:true, roundsToWin:2, voice:true, mode:"1p"
+    sound:true, roundsToWin:2, voice:false, mode:"1p"
   };
   const game = {
     red:0, blue:0, redRounds:0, blueRounds:0, currentRound:1, totalRounds:3,
@@ -527,7 +509,7 @@
     config.aiSkill = parseInt($("aiSkill").value);
     config.sound = $("soundOn").value === "1";
     config.roundsToWin = parseInt($("roundsToWin").value || "2");
-    config.voice = $("voiceOn").value === "1";
+    config.voice = false;
     els.targetText.textContent = config.target;
   }
   function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
@@ -598,19 +580,7 @@
   }
 
   function speakRef(text, rate=1.0){
-    if(!config.voice || !("speechSynthesis" in window)) return;
-    try{
-      window.speechSynthesis.cancel();
-      const u = new SpeechSynthesisUtterance(text);
-      const voices = window.speechSynthesis.getVoices ? window.speechSynthesis.getVoices() : [];
-      const englishVoice = voices.find(v => /en/i.test(v.lang) && /male|daniel|alex|fred|lee/i.test(v.name)) ||
-                           voices.find(v => /en/i.test(v.lang));
-      if(englishVoice) u.voice = englishVoice;
-      u.rate = rate;
-      u.pitch = .85;
-      u.volume = .9;
-      window.speechSynthesis.speak(u);
-    }catch(e){}
+    // Commentary voice removed to keep the game quiet.
   }
 
   let audioCtx = null;
@@ -872,9 +842,11 @@
     const total = config.seconds;
     game.answerDeadline = performance.now() + total*1000;
     els.speedTimerFill.style.width = "100%";
+    els.speedTimeText.textContent = total.toFixed(1);
     game.timerId = setInterval(() => {
       const left = Math.max(0, (game.answerDeadline - performance.now())/1000);
       els.speedTimerFill.style.width = (left/total*100) + "%";
+      els.speedTimeText.textContent = left.toFixed(1);
       if(left <= 0){
         clearInterval(game.timerId);
         if(!game.locked){
