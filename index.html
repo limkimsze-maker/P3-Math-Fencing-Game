@@ -25,13 +25,13 @@
   canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 
   .topbar{
-    position:absolute;left:clamp(10px,2vw,20px);right:clamp(10px,2vw,20px);top:10px;
-    display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;z-index:5;
+    position:absolute;left:clamp(8px,1.6vw,16px);right:clamp(8px,1.6vw,16px);top:8px;
+    display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center;z-index:5;
     pointer-events:none;
   }
   .scoreCard{
-    pointer-events:auto;border:1px solid rgba(255,255,255,.22);background:rgba(6,12,28,.6);
-    border-radius:18px;padding:10px 14px;backdrop-filter:blur(10px);box-shadow:0 10px 30px rgba(0,0,0,.22);
+    pointer-events:auto;border:1px solid rgba(255,255,255,.22);background:rgba(6,12,28,.56);
+    border-radius:16px;padding:8px 12px;backdrop-filter:blur(10px);box-shadow:0 10px 26px rgba(0,0,0,.20);
   }
   .scoreCard.blue{text-align:right}
   .scoreCard.activeTurn{
@@ -57,17 +57,17 @@
   .scoreCard.blue .answerSign{margin-left:auto}
   .miniRounds{margin-top:4px;font-size:12px;color:#d6e6ff;font-weight:800}
   .miniRounds b{font-size:15px;color:#fff}
-  .name{font-weight:900;letter-spacing:.03em;font-size:clamp(13px,1.7vw,17px)}
+  .name{font-weight:900;letter-spacing:.03em;font-size:clamp(12px,1.6vw,16px)}
   .name.red{color:#ff8090}.name.blue{color:#8ed0ff}
-  .score{font-size:clamp(26px,5vw,46px);font-weight:1000;line-height:.9}
-  .score small{font-size:13px;color:var(--muted);font-weight:700}
+  .score{font-size:clamp(24px,4.4vw,42px);font-weight:1000;line-height:.9}
+  .score small{font-size:12px;color:var(--muted);font-weight:700}
   .matchTitle{
-    pointer-events:auto;text-align:center;border:1px solid rgba(255,255,255,.22);background:rgba(6,12,28,.52);
-    border-radius:22px;padding:9px 16px;box-shadow:0 10px 30px rgba(0,0,0,.18);backdrop-filter:blur(10px);
-    font-weight:1000;color:var(--gold);white-space:nowrap;font-size:clamp(13px,2vw,18px)
+    pointer-events:auto;text-align:center;border:1px solid rgba(255,255,255,.18);background:rgba(6,12,28,.46);
+    border-radius:18px;padding:7px 13px;box-shadow:0 8px 24px rgba(0,0,0,.16);backdrop-filter:blur(10px);
+    font-weight:1000;color:var(--gold);white-space:nowrap;font-size:clamp(12px,1.8vw,17px)
   }
   .matchSub{
-    margin-top:3px;font-size:clamp(10px,1.4vw,12px);font-weight:900;color:#d8e7ff;letter-spacing:.04em;
+    margin-top:2px;font-size:clamp(9px,1.2vw,11px);font-weight:900;color:#d8e7ff;letter-spacing:.04em;
   }
   .matchSub b{color:#fff}
   .hud{display:none}
@@ -110,46 +110,51 @@
   .ans:disabled{cursor:default;opacity:.72}
 
   .speedPanel{
-    position:absolute;z-index:12;left:50%;bottom:8px;transform:translateX(-50%);
-    width:min(860px,94vw);border:1px solid rgba(255,209,102,.32);background:rgba(6,12,28,.68);
-    border-radius:22px;padding:10px 12px;box-shadow:0 16px 46px rgba(0,0,0,.34);backdrop-filter:blur(12px);
+    position:absolute;z-index:12;left:50%;bottom:4px;transform:translateX(-50%);
+    width:min(820px,92vw);border:1px solid rgba(255,209,102,.24);
+    background:linear-gradient(180deg, rgba(8,16,34,.52), rgba(6,12,28,.58));
+    border-radius:20px;padding:7px 9px;box-shadow:0 10px 26px rgba(0,0,0,.24);backdrop-filter:blur(9px);
   }
   .speedTitle{
-    text-align:center;font-size:clamp(15px,2.5vw,24px);font-weight:1000;color:var(--gold);margin-bottom:2px;
+    text-align:center;font-size:clamp(12px,1.9vw,18px);font-weight:1000;color:var(--gold);margin-bottom:1px;
+    letter-spacing:.01em;
   }
   .speedQuestion{
-    text-align:center;font-size:clamp(24px,5vw,44px);font-weight:1000;margin:2px 0 8px;line-height:1.05;
+    text-align:center;font-size:clamp(22px,4.8vw,40px);font-weight:1000;margin:0 0 5px;line-height:1.02;
+    text-shadow:0 3px 12px rgba(0,0,0,.35);
   }
   .speedRace{
     display:grid;grid-template-columns:1fr 1fr;gap:10px;
   }
   .speedSide{
-    border-radius:18px;padding:8px;border:2px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.06);
+    border-radius:16px;padding:7px;border:2px solid rgba(255,255,255,.16);
+    background:rgba(255,255,255,.05);
   }
   .speedSide.redSide{border-color:rgba(255,71,87,.6)}
   .speedSide.blueSide{border-color:rgba(54,163,255,.6)}
   .speedSide h3{margin:0 0 5px;text-align:center;font-size:clamp(13px,2vw,18px)}
   .speedSide.redSide h3{color:#ff8090}
   .speedSide.blueSide h3{color:#8ed0ff}
-  .speedAnswers{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+  .speedAnswers{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
   .speedBtn{
-    border:0;border-radius:14px;color:#fff;font-size:clamp(16px,2.7vw,24px);font-weight:1000;
-    padding:10px 4px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 8px 18px rgba(0,0,0,.18);
+    border:0;border-radius:12px;color:#fff;font-size:clamp(15px,2.5vw,22px);font-weight:1000;
+    padding:8px 3px;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18),0 6px 14px rgba(0,0,0,.16);
+    transition:transform .08s ease, filter .12s ease;
   }
+  .speedBtn:active{transform:scale(.97);filter:brightness(1.08)}
   .redSide .speedBtn{background:linear-gradient(180deg,rgba(255,71,87,.78),rgba(120,20,33,.75))}
   .blueSide .speedBtn{background:linear-gradient(180deg,rgba(54,163,255,.78),rgba(15,60,120,.75))}
   .speedBtn.good{background:linear-gradient(180deg,rgba(56,217,130,.95),rgba(35,140,86,.9))}
   .speedBtn.bad{background:linear-gradient(180deg,rgba(255,107,107,.95),rgba(150,44,57,.9))}
   .speedBtn:disabled{opacity:.62;cursor:default}
   .speedFeedback{
-    display:none;text-align:center;margin:0 0 6px;padding:4px 8px;border-radius:12px;
-    font-size:11px;font-weight:1000;letter-spacing:.05em;
+    display:none;text-align:center;margin:0 0 4px;padding:3px 6px;border-radius:10px;
+    font-size:10px;font-weight:1000;letter-spacing:.05em;
   }
   .speedFeedback.show{display:block}
   .speedFeedback.good{background:linear-gradient(180deg,#6cf0a2,#2bb86e);color:#081120}
   .speedFeedback.bad{background:linear-gradient(180deg,#ff8d8d,#e04b4b);color:#fff}
-  .speedTimer{height:8px;width:100%;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:8px}
+  .speedTimer{height:7px;width:100%;border-radius:999px;background:rgba(255,255,255,.16);overflow:hidden;margin-top:6px}
   .speedTimerFill{height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,#4de38a,#ffd166,#ff5b6b)}
   .cover,.gameOver{
     position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:18px;
@@ -232,21 +237,28 @@
 
   @media (max-width:700px){
     #app{min-height:560px}
-    .topbar{grid-template-columns:1fr 1fr;top:8px}
-    .matchTitle{grid-column:1/3;grid-row:2;justify-self:center;font-size:13px;padding:7px 12px}
-    .matchSub{font-size:10px}
-    .turnBadge{font-size:10px;padding:3px 7px}
+    .topbar{grid-template-columns:1fr 1fr;top:5px;gap:7px}
+    .scoreCard{padding:6px 9px;border-radius:13px}
+    .name{font-size:10px}
+    .miniRounds{font-size:10px}
+    .miniRounds b{font-size:12px}
+    .score{font-size:21px}
+    .score small{font-size:10px}
+    .matchTitle{grid-column:1/3;grid-row:2;justify-self:center;font-size:11px;padding:5px 9px;border-radius:16px}
+    .matchSub{font-size:8px}
+    .turnBadge{font-size:8px;padding:3px 6px}
+    .answerSign{font-size:8px;padding:3px 6px}
     .panel{padding:12px;border-radius:20px}
     .answers{grid-template-columns:repeat(2,1fr)}
-    .speedRace{grid-template-columns:1fr 1fr;gap:8px}
-    .speedPanel{padding:8px 10px;border-radius:18px;width:94vw}
-    .speedTitle{font-size:14px}
-    .speedQuestion{font-size:26px;margin:0 0 8px}
-    .speedSide{padding:7px;border-radius:16px}
-    .speedSide h3{font-size:12px;margin-bottom:4px}
-    .speedAnswers{grid-template-columns:repeat(2,1fr);gap:5px}
-    .speedBtn{padding:9px 2px;font-size:16px;border-radius:12px}
-    .speedFeedback{font-size:10px;padding:4px 6px}
+    .speedRace{grid-template-columns:1fr 1fr;gap:5px}
+    .speedPanel{padding:6px 7px;border-radius:15px;width:92vw;bottom:2px}
+    .speedTitle{font-size:11px}
+    .speedQuestion{font-size:23px;margin:0 0 5px}
+    .speedSide{padding:5px;border-radius:13px}
+    .speedSide h3{font-size:10px;margin-bottom:2px}
+    .speedAnswers{grid-template-columns:repeat(2,1fr);gap:4px}
+    .speedBtn{padding:8px 1px;font-size:14px;border-radius:10px}
+    .speedFeedback{font-size:8px;padding:3px 5px}
     .ruleGrid{grid-template-columns:1fr}
     .settings{grid-template-columns:repeat(2,1fr)}
     .timerWrap{width:100%;text-align:left}
@@ -1161,8 +1173,12 @@
   function spawnSparks(side){
     const w = app.clientWidth, h = app.clientHeight;
     const x = w/2 + (side==="red"?70:-70), y = h*.58;
-    for(let i=0;i<22;i++){
-      game.sparks.push({x,y,vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*7-2,life:1,r:2+Math.random()*3});
+    for(let i=0;i<24;i++){
+      game.sparks.push({
+        x,y,
+        vx:(Math.random()-.5)*8,vy:(Math.random()-.5)*7-2,life:1,r:2+Math.random()*3,
+        color: side==="red" ? (Math.random()<.5 ? "#ffd166" : "#fff3b0") : (Math.random()<.5 ? "#9ad8ff" : "#e6f7ff")
+      });
     }
   }
 
@@ -1446,7 +1462,8 @@
 
   function drawFencers(w,h,now){
     const speedModeVisible = !els.speedPanel.classList.contains("hidden");
-    const floorY = speedModeVisible ? h*.56 : h*.70;
+    const floorY = speedModeVisible ? h*.46 : h*.70;
+    const fighterScale = speedModeVisible ? 1.2 : 1;
     const t = Math.min(1, (now - game.animStart)/760);
     const ease = t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
 
@@ -1535,11 +1552,13 @@
     if(game.anim==="redHit"){
       redPose = "lunge"; bluePose = "hitRecoil";
       redX += 115*Math.sin(ease*Math.PI);
+      drawHitImpact(w*.56, floorY-152, "rgba(255,223,110,.88)", now);
       drawActionWord("LUNGE!", redX+70, floorY-210, "#ffdf6e", now);
     }
     if(game.anim==="blueHit" || game.anim==="blueCounter"){
       bluePose = "lunge"; redPose = "hitRecoil";
       blueX -= 115*Math.sin(ease*Math.PI);
+      drawHitImpact(w*.44, floorY-152, "rgba(142,208,255,.86)", now);
       drawActionWord("BLUE LUNGES!", blueX-80, floorY-210, "#9ad8ff", now);
     }
     if(game.anim==="redParry"){
@@ -1566,8 +1585,22 @@
       redX += Math.sin(now/460)*3; blueX += Math.cos(now/460)*3;
     }
 
-    drawStickFencer(redX, floorY+redH, 1, "#ff4757", now, "RED", redPose);
-    drawStickFencer(blueX, floorY+blueH, -1, "#36a3ff", now, "BLUE", bluePose);
+    if(fighterScale !== 1){
+      ctx.save();
+      ctx.translate(redX, floorY+redH);
+      ctx.scale(fighterScale, fighterScale);
+      drawStickFencer(0, 0, 1, "#ff4757", now, "RED", redPose);
+      ctx.restore();
+
+      ctx.save();
+      ctx.translate(blueX, floorY+blueH);
+      ctx.scale(fighterScale, fighterScale);
+      drawStickFencer(0, 0, -1, "#36a3ff", now, "BLUE", bluePose);
+      ctx.restore();
+    }else{
+      drawStickFencer(redX, floorY+redH, 1, "#ff4757", now, "RED", redPose);
+      drawStickFencer(blueX, floorY+blueH, -1, "#36a3ff", now, "BLUE", bluePose);
+    }
   }
 
   function drawStickFencer(x, y, dir, color, now, label, pose="guard"){
@@ -1774,20 +1807,42 @@
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(Math.sin(now/90)*.08);
+
+    const burst = 1 + Math.sin(now/80)*.08;
+    const glow = ctx.createRadialGradient(0,0,2,0,0,42*burst);
+    glow.addColorStop(0,"rgba(255,255,255,.95)");
+    glow.addColorStop(.35,"rgba(255,226,141,.55)");
+    glow.addColorStop(1,"rgba(255,226,141,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0,0,44*burst,0,Math.PI*2);
+    ctx.fill();
+
     ctx.shadowColor = "#ffd166";
-    ctx.shadowBlur = 18;
-    ctx.strokeStyle = "rgba(255,226,141,.95)";
-    ctx.lineWidth = 5;
+    ctx.shadowBlur = 22;
+    ctx.strokeStyle = "rgba(255,226,141,.98)";
+    ctx.lineWidth = 6;
     ctx.lineCap = "round";
     ctx.beginPath();
-    ctx.moveTo(-42,-42); ctx.lineTo(42,42);
-    ctx.moveTo(42,-42); ctx.lineTo(-42,42);
+    ctx.moveTo(-46,-46); ctx.lineTo(46,46);
+    ctx.moveTo(46,-46); ctx.lineTo(-46,46);
     ctx.stroke();
-    ctx.fillStyle = "#fff";
-    for(let i=0;i<8;i++){
-      const a = i*Math.PI/4 + now/200;
+
+    ctx.strokeStyle = "rgba(255,255,255,.95)";
+    ctx.lineWidth = 2.5;
+    for(let i=0;i<10;i++){
+      const a = i*Math.PI/5 + now/240;
       ctx.beginPath();
-      ctx.arc(Math.cos(a)*24, Math.sin(a)*24, 2.5, 0, Math.PI*2);
+      ctx.moveTo(Math.cos(a)*8, Math.sin(a)*8);
+      ctx.lineTo(Math.cos(a)*34, Math.sin(a)*34);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = "#fff";
+    for(let i=0;i<10;i++){
+      const a = i*Math.PI/5 + now/210;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a)*25, Math.sin(a)*25, 2.4, 0, Math.PI*2);
       ctx.fill();
     }
     ctx.restore();
@@ -1801,12 +1856,38 @@
     // Intentionally left empty to reduce redundant on-screen prompts.
   }
 
+
+  function drawHitImpact(x, y, color, now){
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(Math.sin(now/120)*.12);
+    const glow = ctx.createRadialGradient(0,0,4,0,0,54);
+    glow.addColorStop(0,"rgba(255,255,255,.96)");
+    glow.addColorStop(.28,color);
+    glow.addColorStop(1,"rgba(255,255,255,0)");
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(0,0,56,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5;
+    for(let i=0;i<6;i++){
+      const a = (Math.PI*2/6)*i + now/210;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a)*6, Math.sin(a)*6);
+      ctx.lineTo(Math.cos(a)*40, Math.sin(a)*40);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
   function drawParticles(w,h){
     for(let i=game.sparks.length-1;i>=0;i--){
       const p=game.sparks[i];
       p.x+=p.vx; p.y+=p.vy; p.vy+=.22; p.life-=.035;
       ctx.globalAlpha=Math.max(0,p.life);
-      ctx.fillStyle="#ffd166";
+      ctx.fillStyle=p.color || "#ffd166";
       ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
       ctx.globalAlpha=1;
       if(p.life<=0) game.sparks.splice(i,1);
