@@ -331,7 +331,7 @@
       <p>Red and Blue face off on the piste in a full sporting-event arena. In Speed Duel, both players answer the same question and the faster correct player scores.</p>
       <div class="ruleGrid">
         <div class="rule"><b>⚡ 1 Player</b><span>Play as Red against Blue AI. Answer to attack, defend, and riposte.</span></div>
-        <div class="rule"><b>🏁 2 Players Speed Duel</b><span>Both players answer the same question. The first correct player scores the touch.</span></div>
+        <div class="rule"><b>🏁 2 Players Speed Duel</b><span>Both players answer the same question. The first correct player scores — but if both are correct almost together, it becomes a parry.</span></div>
         <div class="rule"><b>🔥 Power Move</b><span>Three correct answers charges a Flèche power attack.</span></div>
       </div>
 
@@ -462,6 +462,7 @@
     redStreak:0, blueStreak:0, redPower:false, bluePower:false,
     streak:0, power:false, phase:"cover", phaseSide:"red", current:null, locked:false,
     initiative:"red", pendingAttacker:null, anim:"idle", animStart:0, lastFlash:"", answerDeadline:0, timerId:null,
+    speedFirstCorrectSide:null, speedResolveTimer:null,
     confetti:[], sparks:[], crowd:0
   };
 
@@ -705,7 +706,9 @@
 
   function beginRound(firstRound=false){
     clearInterval(game.timerId);
-    game.red=0;
+    clearTimeout(game.speedResolveTimer);
+    game.speedFirstCorrectSide = null;
+    game.red=
     game.blue=0;
     game.redStreak=0;
     game.blueStreak=0;
@@ -777,6 +780,8 @@
 
   function askSpeedDuel(){
     game.locked = false;
+    clearTimeout(game.speedResolveTimer);
+    game.speedFirstCorrectSide = null;
     game.phase = "speed";
     game.phaseSide = null;
     game.current = makeQuestion();
@@ -826,6 +831,8 @@
         clearInterval(game.timerId);
         if(!game.locked){
           game.locked = true;
+          clearTimeout(game.speedResolveTimer);
+          game.speedFirstCorrectSide = null;
           els.speedPanel.classList.add("hidden");
           setActiveTurn(null);
           hideAnswerSigns();
@@ -842,17 +849,40 @@
     const correct = value === q.answer;
 
     if(correct){
-      game.locked = true;
-      clearInterval(game.timerId);
       btn.classList.add("good");
+      btn.disabled = true;
       sound("correct");
       recordAnswerForSide(side, true);
       showAnswerSign(side, true);
-      setActiveTurn(null);
-      setTimeout(() => {
-        els.speedPanel.classList.add("hidden");
-        score(side, side === "red" ? "RED SPEED TOUCH!" : "BLUE SPEED TOUCH!");
-      }, 240);
+
+      const myButtons = side === "red" ? els.redSpeedAnswers.children : els.blueSpeedAnswers.children;
+      [...myButtons].forEach(x => x.disabled = true);
+
+      if(game.speedFirstCorrectSide && game.speedFirstCorrectSide !== side){
+        game.locked = true;
+        clearInterval(game.timerId);
+        clearTimeout(game.speedResolveTimer);
+        game.speedFirstCorrectSide = null;
+        setActiveTurn(null);
+        flash("PARRY!", "#ffd166");
+        sound("parry");
+        animate("speedParry");
+        setTimeout(() => {
+          els.speedPanel.classList.add("hidden");
+          hideAnswerSigns();
+          nextExchange();
+        }, 820);
+      }else if(!game.speedFirstCorrectSide){
+        game.speedFirstCorrectSide = side;
+        setActiveTurn(otherSide(side), "PARRY CHANCE!");
+        game.speedResolveTimer = setTimeout(() => {
+          game.locked = true;
+          game.speedFirstCorrectSide = null;
+          setActiveTurn(null);
+          els.speedPanel.classList.add("hidden");
+          score(side, side === "red" ? "RED SPEED TOUCH!" : "BLUE SPEED TOUCH!");
+        }, 200);
+      }
     }else{
       btn.classList.add("bad");
       btn.disabled = true;
@@ -1087,6 +1117,8 @@
   }
 
   function finish(){
+    clearTimeout(game.speedResolveTimer);
+    game.speedFirstCorrectSide = null;
     els.questionPanel.classList.add("hidden");
     els.speedPanel.classList.add("hidden");
     els.phaseBanner.classList.add("hidden");
@@ -1192,6 +1224,8 @@
     updateHud();
   });
   $("coverBtn").addEventListener("click", () => {
+    clearTimeout(game.speedResolveTimer);
+    game.speedFirstCorrectSide = null;
     els.gameOver.classList.add("hidden");
     els.questionPanel.classList.add("hidden");
     els.speedPanel.classList.add("hidden");
@@ -1458,6 +1492,13 @@
       bluePose = "attackReady";
       redX += 10*Math.abs(Math.sin(now/160));
       blueX -= 10*Math.abs(Math.sin(now/160));
+    }
+    if(game.anim==="speedParry"){
+      redPose = "parry";
+      bluePose = "parry";
+      redX += 34*Math.sin(ease*Math.PI);
+      blueX -= 34*Math.sin(ease*Math.PI);
+      drawBladeClash(w*.50, floorY-155, now);
     }
     if(game.anim==="redReady"){
       redPose = powerOf("red") ? "powerReady" : "attackReady";
