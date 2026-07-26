@@ -378,6 +378,409 @@
     .speedTimer{height:5px;margin-top:3px}
   }
 
+
+  /* Child-friendly desktop / Chromebook layout:
+     larger question, answer buttons and score text for easy classroom play. */
+  @media (min-width:900px) and (min-height:620px){
+    .topbar{
+      left:12px;
+      right:12px;
+      top:8px;
+      gap:12px;
+    }
+    .scoreCard{
+      padding:10px 16px;
+      border-radius:18px;
+    }
+    .name{
+      font-size:17px;
+    }
+    .miniRounds{
+      margin-top:5px;
+      font-size:13px;
+    }
+    .miniRounds b{
+      font-size:16px;
+    }
+    .score{
+      font-size:38px;
+    }
+    .score small{
+      font-size:14px;
+    }
+    .turnBadge,
+    .answerSign{
+      font-size:12px;
+      padding:5px 10px;
+    }
+    .matchTitle{
+      font-size:17px;
+      padding:8px 14px;
+    }
+    .matchSub{
+      font-size:11px;
+    }
+
+    .speedPanel{
+      width:min(1120px,88vw);
+      bottom:16px;
+      padding:14px 16px;
+      border-radius:24px;
+    }
+    .speedTitle{
+      font-size:22px;
+      margin-bottom:4px;
+    }
+    .speedQuestion{
+      font-size:46px;
+      margin:2px 0 10px;
+      line-height:1;
+    }
+    .speedRace{
+      gap:16px;
+    }
+    .speedSide{
+      padding:12px;
+      border-radius:18px;
+    }
+    .speedSide h3{
+      font-size:20px;
+      margin-bottom:8px;
+    }
+    .speedAnswers{
+      gap:10px;
+    }
+    .speedBtn{
+      min-height:66px;
+      padding:14px 8px;
+      font-size:30px;
+      border-radius:16px;
+    }
+    .speedFeedback{
+      font-size:13px;
+      padding:5px 8px;
+      margin-bottom:6px;
+    }
+    .speedTimerLabel{
+      margin-top:10px;
+      padding:6px 12px;
+      font-size:13px;
+    }
+    .speedTimer{
+      height:9px;
+      margin-top:7px;
+    }
+
+    .panel{
+      width:min(1050px,86vw);
+      bottom:18px;
+      padding:18px;
+    }
+    .phase h2{
+      font-size:28px;
+    }
+    .timerText{
+      font-size:16px;
+    }
+    .timerBar{
+      width:220px;
+      height:13px;
+    }
+    .question{
+      font-size:56px;
+      margin:12px 0 18px;
+    }
+    .answers{
+      gap:14px;
+    }
+    .ans{
+      min-height:78px;
+      padding:16px 10px;
+      font-size:34px;
+      border-radius:18px;
+    }
+
+    .settingsQuick{
+      top:108px;
+      padding:8px 14px;
+      font-size:12px;
+    }
+  }
+
+
+  /* ==========================================================
+     CLEAN PLAY LAYOUT
+     Keeps the important information large and removes clutter.
+     ========================================================== */
+
+  /* Top score area: large, readable, but not excessively tall. */
+  .topbar{
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+    align-items:start;
+  }
+  .scoreCard{
+    min-height:0;
+  }
+  .scoreCard.activeTurn{
+    outline:2px solid var(--gold);
+    box-shadow:0 0 0 3px rgba(255,209,102,.14),0 12px 30px rgba(255,209,102,.16);
+  }
+
+  /* The middle strip contains only match information. */
+  .matchTitle{
+    align-self:start;
+    min-width:220px;
+  }
+  .matchTitle > div:first-child:empty{display:none}
+  .matchSub{
+    margin:0;
+    white-space:nowrap;
+  }
+
+  /* The decorative arena label is not needed during play. */
+  .arenaLabel{display:none!important}
+
+  /* Keep the question area visually dominant. */
+  .speedPanel{
+    background:rgba(6,12,28,.88);
+  }
+  .speedTitle{
+    text-transform:none;
+    letter-spacing:0;
+  }
+  .speedQuestion{
+    letter-spacing:.015em;
+  }
+  .speedSide{
+    background:rgba(255,255,255,.045);
+  }
+
+  /* Desktop / Chromebook */
+  @media (min-width:900px) and (min-height:620px){
+    .topbar{
+      left:10px;
+      right:10px;
+      top:8px;
+      gap:18px;
+    }
+
+    .scoreCard{
+      padding:12px 18px;
+      border-radius:18px;
+    }
+    .name{
+      font-size:24px;
+      line-height:1.1;
+    }
+    .miniRounds{
+      margin-top:8px;
+      font-size:17px;
+    }
+    .miniRounds b{
+      font-size:19px;
+    }
+    .score{
+      margin-top:4px;
+      font-size:54px;
+      line-height:.9;
+    }
+    .score small{
+      font-size:18px;
+    }
+
+    /* RACE / active-turn badges are useful in 1-player mode only.
+       Speed Duel now keeps the score cards clean. */
+    .turnBadge{
+      font-size:14px;
+      padding:5px 10px;
+    }
+    .answerSign{
+      font-size:14px;
+      padding:5px 10px;
+    }
+
+    .matchTitle{
+      padding:10px 15px;
+      border-radius:16px;
+      min-width:300px;
+    }
+    .matchSub{
+      font-size:15px;
+      line-height:1.25;
+    }
+
+    .settingsQuick{
+      top:82px;
+      padding:8px 14px;
+      font-size:13px;
+    }
+
+    /* Leave a clear central arena for the fencers. */
+    .speedPanel{
+      width:min(1420px,94vw);
+      bottom:10px;
+      padding:14px 18px 12px;
+      border-radius:24px;
+    }
+    .speedTitle{
+      font-size:22px;
+      margin-bottom:2px;
+    }
+    .speedQuestion{
+      font-size:58px;
+      margin:2px 0 10px;
+    }
+
+    /* Physically separate the two children's answer zones. */
+    .speedRace{
+      grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+      gap:64px;
+    }
+    .speedSide{
+      padding:12px;
+      border-radius:18px;
+    }
+    .speedSide h3{
+      font-size:22px;
+      margin-bottom:8px;
+    }
+    .speedAnswers{
+      gap:12px;
+    }
+    .speedBtn{
+      min-height:76px;
+      padding:12px 8px;
+      font-size:38px;
+      border-radius:18px;
+    }
+    .speedFeedback{
+      font-size:14px;
+      padding:5px 8px;
+      margin-bottom:6px;
+    }
+    .speedTimerLabel{
+      margin-top:9px;
+      padding:5px 10px;
+      font-size:13px;
+    }
+    .speedTimer{
+      height:8px;
+      margin-top:6px;
+    }
+
+    /* One-player mode remains large, but compact enough to preserve the arena. */
+    .panel{
+      width:min(1120px,90vw);
+      bottom:12px;
+      padding:16px 18px;
+      border-radius:22px;
+    }
+    .phase h2{
+      font-size:26px;
+    }
+    .timerText{
+      font-size:15px;
+    }
+    .timerBar{
+      width:200px;
+      height:10px;
+    }
+    .question{
+      font-size:54px;
+      margin:8px 0 12px;
+    }
+    .answers{
+      gap:12px;
+    }
+    .ans{
+      min-height:68px;
+      padding:12px 8px;
+      font-size:32px;
+      border-radius:16px;
+    }
+  }
+
+  /* Short mobile landscape */
+  @media (orientation:landscape) and (max-height:600px){
+    .topbar{
+      left:5px;
+      right:5px;
+      top:3px;
+      gap:5px;
+    }
+    .scoreCard{
+      padding:5px 8px;
+      border-radius:11px;
+    }
+    .name{
+      font-size:10px;
+    }
+    .miniRounds{
+      margin-top:2px;
+      font-size:8px;
+    }
+    .miniRounds b{
+      font-size:10px;
+    }
+    .score{
+      margin-top:1px;
+      font-size:22px;
+    }
+    .score small{
+      font-size:8px;
+    }
+    .matchTitle{
+      min-width:0;
+      padding:4px 7px;
+    }
+    .matchSub{
+      font-size:8px;
+    }
+    .settingsQuick{
+      top:45px;
+    }
+
+    .speedPanel{
+      width:97vw;
+      bottom:2px;
+      padding:5px 7px;
+    }
+    .speedTitle{
+      font-size:10px;
+    }
+    .speedQuestion{
+      font-size:24px;
+      margin:0 0 4px;
+    }
+    .speedRace{
+      gap:12px;
+    }
+    .speedSide{
+      padding:5px;
+    }
+    .speedSide h3{
+      font-size:10px;
+      margin-bottom:3px;
+    }
+    .speedAnswers{
+      gap:4px;
+    }
+    .speedBtn{
+      min-height:36px;
+      padding:6px 2px;
+      font-size:15px;
+    }
+    .speedTimerLabel{
+      font-size:8px;
+      margin-top:4px;
+      padding:2px 5px;
+    }
+    .speedTimer{
+      height:5px;
+      margin-top:3px;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -394,9 +797,8 @@
       <div class="score"><span id="redScore">0</span> <small>points</small></div>
     </div>
     <div class="matchTitle">
-      <div>⚔️ MATH FENCING DUEL ⚔️</div>
       <div class="matchSub">
-        Round <b id="roundText">1 / 3</b> · First to <b id="targetText">5</b> points · Rounds <b id="roundScoreText">0 - 0</b>
+        Round <b id="roundText">1 / 3</b> · First to <b id="targetText">5</b> · Match <b id="roundScoreText">0 - 0</b>
       </div>
     </div>
     <div class="scoreCard blue" id="blueCard">
@@ -413,7 +815,7 @@
     <span id="powerText">Not ready</span>
   </div>
 
-  <div class="arenaLabel">EN GARDE · ALLEZ · TOUCHÉ</div>
+  <div class="arenaLabel hidden" aria-hidden="true"></div>
   <div id="phaseBanner" class="phaseBanner attack hidden">
     <div id="phaseIcon" class="phaseIcon">➡️</div>
     <div>
@@ -439,7 +841,7 @@
   </section>
 
   <section id="speedPanel" class="speedPanel hidden">
-    <div class="speedTitle">Speed Duel — First Correct Answer Scores</div>
+    <div class="speedTitle">First correct answer scores</div>
     <div id="speedQuestion" class="speedQuestion">4 × 6 = ?</div>
     <div class="speedRace">
       <div class="speedSide redSide">
@@ -1041,10 +1443,7 @@
     els.speedPanel.classList.remove("hidden");
     hideAnswerSigns();
     els.speedQuestion.textContent = game.current.text;
-    setActiveTurn("red", "RACE!");
-    els.blueCard.classList.add("activeTurn");
-    els.redTurnBadge.textContent = "RACE!";
-    els.blueTurnBadge.textContent = "RACE!";
+    setActiveTurn(null);
     buildSpeedAnswers(game.current);
     animate("speedReady");
     startSpeedTimer();
@@ -1132,7 +1531,7 @@
         }, 1100);
       }else if(!game.speedFirstCorrectSide){
         game.speedFirstCorrectSide = side;
-        setActiveTurn(otherSide(side), "PARRY CHANCE!");
+        setActiveTurn(null);
         game.speedResolveTimer = setTimeout(() => {
           game.locked = true;
           game.speedFirstCorrectSide = null;
@@ -1560,12 +1959,8 @@
     drawCrowdBand(0, floorY-92, w, 56, 24, now, 0.14);
     drawCrowdBand(0, floorY-58, w, 42, 18, now, 0.11);
 
-    drawBanner(w*.06, 86, 130, 56, "#ff4757", "TEAM RED");
-    drawBanner(w*.5-90, 74, 180, 62, "#ffd166", "FINAL BOUT");
-    drawBanner(w*.83, 86, 130, 56, "#36a3ff", "TEAM BLUE");
-
-    drawPennants(w*.13, 148, "#ff4757", "#ffffff", "#ff4757");
-    drawPennants(w*.84, 148, "#36a3ff", "#ffffff", "#36a3ff");
+    // Keep the arena uncluttered: player identity is already shown by
+    // the red/blue fencers and score cards.
 
     ctx.fillStyle = "rgba(255,255,255,.08)";
     roundRect(ctx, w*.47, floorY-116, w*.06, 58, 14, true);
@@ -1724,39 +2119,31 @@
   function drawFencers(w,h,now){
     const speedModeVisible = !els.speedPanel.classList.contains("hidden");
     const questionVisible = !els.questionPanel.classList.contains("hidden");
+    const appRect = app.getBoundingClientRect();
+
+    const topbar = document.querySelector(".topbar");
+    const topbarBottom = topbar
+      ? topbar.getBoundingClientRect().bottom - appRect.top + 10
+      : 120;
+
+    let lowerBoundary = h - 12;
+    if(speedModeVisible){
+      lowerBoundary = els.speedPanel.getBoundingClientRect().top - appRect.top - 8;
+    }else if(questionVisible){
+      lowerBoundary = els.questionPanel.getBoundingClientRect().top - appRect.top - 8;
+    }
+
+    const availableHeight = Math.max(150, lowerBoundary - topbarBottom);
     const compactLandscape = w > h && h <= 700;
 
-    let floorY;
-    let fighterScale;
+    // Place the fencers in the centre of the free arena.
+    const floorY = lowerBoundary - Math.max(8, availableHeight * .06);
 
-    if(compactLandscape){
-      // Work from the ACTUAL visible UI boundaries, not fixed percentages.
-      // This keeps every fencer below the scoreboard and above the question/answer panel.
-      const appRect = app.getBoundingClientRect();
-      const topbar = document.querySelector(".topbar");
-      const topbarBottom = topbar
-        ? topbar.getBoundingClientRect().bottom - appRect.top + 7
-        : 82;
-
-      let panelTop = h - 8;
-      if(speedModeVisible){
-        panelTop = els.speedPanel.getBoundingClientRect().top - appRect.top;
-      }else if(questionVisible){
-        panelTop = els.questionPanel.getBoundingClientRect().top - appRect.top;
-      }
-
-      // Feet stay just above the active question panel.
-      floorY = Math.min(h * .69, panelTop - 8);
-
-      // Normal fencing poses need about 235px of vertical drawing room.
-      // The opening salute is taller, so shrink only for that animation.
-      const availableHeight = Math.max(120, floorY - topbarBottom);
-      const poseHeight = game.anim === "salute" ? 320 : 235;
-      fighterScale = clamp(availableHeight / poseHeight, .58, .88);
-    }else{
-      floorY = speedModeVisible ? h*.46 : h*.70;
-      fighterScale = speedModeVisible ? 1.2 : 1;
-    }
+    // Fit their full bodies into the free arena without touching either UI region.
+    const normalPoseHeight = game.anim === "salute" ? 320 : 245;
+    const fighterScale = compactLandscape
+      ? clamp(availableHeight / normalPoseHeight, .52, .82)
+      : clamp(availableHeight / normalPoseHeight, .72, 1.05);
 
     const t = Math.min(1, (now - game.animStart)/760);
     const ease = t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
