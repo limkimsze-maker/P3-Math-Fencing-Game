@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <title>Math Fencing Duel</title>
 <style>
   :root{
@@ -210,6 +213,7 @@
     width:100%;border:1px solid rgba(255,255,255,.22);background:rgba(3,9,20,.6);color:#fff;border-radius:12px;
     padding:10px 9px;font-size:15px;outline:none;
   }
+  .settingHint{font-size:10px;line-height:1.25;color:#8fa5c2;font-weight:700}
   .arenaLabel{
     position:absolute;left:50%;transform:translateX(-50%);top:150px;z-index:4;text-align:center;color:rgba(255,255,255,.72);
     font-weight:900;letter-spacing:.18em;font-size:12px;pointer-events:none
@@ -251,6 +255,28 @@
   .toast.show{display:none!important}
   .hidden{display:none!important}
 
+  .settingsQuick{
+    position:absolute;
+    left:50%;
+    top:96px;
+    transform:translateX(-50%);
+    z-index:30;
+    border:1px solid rgba(255,255,255,.28);
+    border-radius:999px;
+    padding:7px 12px;
+    background:rgba(6,12,28,.84);
+    color:#fff;
+    font-weight:900;
+    font-size:11px;
+    cursor:pointer;
+    box-shadow:0 8px 22px rgba(0,0,0,.28);
+    backdrop-filter:blur(10px);
+  }
+  .settingsQuick:hover,.settingsQuick:focus-visible{
+    outline:2px solid rgba(255,209,102,.7);
+    background:rgba(18,35,65,.94);
+  }
+
   @media (max-width:700px){
     #app{min-height:560px}
     .topbar{grid-template-columns:1fr 1fr;top:5px;gap:7px}
@@ -282,11 +308,82 @@
     .timerBar{width:100%}
     .arenaLabel{top:166px}
   }
+
+  /* Mobile landscape: fit the full game and Teacher Mode into a short, wide screen. */
+  @media (orientation:landscape) and (max-height:600px){
+    html,body{height:100dvh;overflow:hidden}
+    #app{height:100dvh;min-height:0}
+
+    .topbar{left:6px;right:6px;top:3px;gap:5px}
+    .scoreCard{padding:4px 7px;border-radius:11px}
+    .name{font-size:9px}
+    .miniRounds{margin-top:1px;font-size:8px}
+    .miniRounds b{font-size:10px}
+    .score{font-size:18px}
+    .score small{font-size:8px}
+    .turnBadge,.answerSign{font-size:7px;padding:2px 5px;margin-top:2px}
+    .matchTitle{font-size:10px;padding:4px 7px;border-radius:11px}
+    .matchSub{font-size:7px;margin-top:1px}
+
+    .cover,.gameOver{padding:4px}
+    .coverCard,.overCard{
+      width:min(980px,99vw);
+      max-height:98dvh;
+      padding:8px 12px;
+      border-radius:18px;
+    }
+    .cover h1,.overCard h1{font-size:clamp(25px,8vh,38px);margin:0 0 3px}
+    .cover p,.overCard p{font-size:11px;line-height:1.25;margin:3px 0}
+    .ruleGrid{grid-template-columns:repeat(3,1fr);gap:5px;margin:5px 0}
+    .rule{padding:6px 8px;min-height:0;border-radius:11px}
+    .rule b{font-size:12px;margin-bottom:1px}
+    .rule span{font-size:9px;line-height:1.15}
+
+    .teacher{margin-top:5px;border-radius:12px}
+    .teacher summary{padding:6px 9px;font-size:11px}
+    .settings{grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;padding:0 7px 7px}
+    label{gap:2px;font-size:9px}
+    select,input{padding:5px 6px;font-size:11px;border-radius:8px}
+    .settingHint{font-size:7px;line-height:1.1}
+    .buttons{gap:6px;margin-top:5px}
+    .primary,.secondary,.tiny{padding:7px 11px;font-size:11px}
+
+    .settingsQuick{top:47px;padding:4px 8px;font-size:9px}
+    .arenaLabel{top:74px;font-size:7px;letter-spacing:.12em;opacity:.55}
+    .panel{
+      width:min(760px,97vw);
+      bottom:3px;
+      padding:6px 8px;
+      border-radius:13px;
+    }
+    .phase{gap:6px;margin-bottom:0}
+    .phase h2{font-size:15px}
+    .timerWrap{min-width:115px}
+    .timerText{font-size:9px}
+    .timerBar{width:115px;height:6px;margin-top:2px}
+    .question{font-size:clamp(24px,8vh,32px);margin:3px 0 5px}
+    .answers{grid-template-columns:repeat(4,1fr);gap:5px}
+    .ans{font-size:18px;padding:7px 3px;border-radius:10px}
+
+    .speedPanel{width:min(760px,97vw);bottom:2px;padding:4px 6px;border-radius:12px}
+    .speedTitle{font-size:10px}
+    .speedQuestion{font-size:22px;margin:0 0 3px}
+    .speedRace{gap:5px}
+    .speedSide{padding:4px;border-radius:9px}
+    .speedSide h3{font-size:9px;margin-bottom:2px}
+    .speedAnswers{gap:3px}
+    .speedBtn{padding:5px 2px;font-size:13px;border-radius:8px}
+    .speedFeedback{font-size:7px;padding:2px 4px;margin-bottom:2px}
+    .speedTimerLabel{font-size:7px;padding:2px 6px;margin-top:3px}
+    .speedTimer{height:5px;margin-top:3px}
+  }
+
 </style>
 </head>
 <body>
 <div id="app">
   <canvas id="scene"></canvas>
+  <button id="settingsBtn" class="settingsQuick hidden" type="button">← Back to Settings</button>
 
   <div class="topbar">
     <div class="scoreCard" id="redCard">
@@ -294,12 +391,12 @@
       <div class="turnBadge" id="redTurnBadge">ANSWER NOW</div>
       <div class="answerSign" id="redAnswerSign">✓ CORRECT</div>
       <div class="miniRounds">Rounds won: <b id="redRounds">0</b></div>
-      <div class="score"><span id="redScore">0</span> <small>touches</small></div>
+      <div class="score"><span id="redScore">0</span> <small>points</small></div>
     </div>
     <div class="matchTitle">
       <div>⚔️ MATH FENCING DUEL ⚔️</div>
       <div class="matchSub">
-        Round <b id="roundText">1 / 3</b> · First to <b id="targetText">5</b> touches · Rounds <b id="roundScoreText">0 - 0</b>
+        Round <b id="roundText">1 / 3</b> · First to <b id="targetText">5</b> points · Rounds <b id="roundScoreText">0 - 0</b>
       </div>
     </div>
     <div class="scoreCard blue" id="blueCard">
@@ -307,7 +404,7 @@
       <div class="turnBadge" id="blueTurnBadge">ANSWER NOW</div>
       <div class="answerSign" id="blueAnswerSign">✓ CORRECT</div>
       <div class="miniRounds">Rounds won: <b id="blueRounds">0</b></div>
-      <div class="score"><span id="blueScore">0</span> <small>touches</small></div>
+      <div class="score"><span id="blueScore">0</span> <small>points</small></div>
     </div>
   </div>
 
@@ -359,7 +456,6 @@
     <div class="speedTimerLabel">TIME LEFT: <b><span id="speedTimeText">8.0</span>s</b></div>
     <div class="speedTimer"><div id="speedTimerFill" class="speedTimerFill"></div></div>
   </section>
-
   <section id="cover" class="cover">
     <div class="coverCard">
       <h1>Math <span>Fencing</span> Duel</h1>
@@ -367,7 +463,7 @@
       <div class="ruleGrid">
         <div class="rule"><b>⚡ 1 Player</b><span>Play as Red against Blue AI. Answer to attack, defend, and riposte.</span></div>
         <div class="rule"><b>🏁 2 Players Speed Duel</b><span>Both players answer the same question. The first correct player scores — but if both are correct almost together, it becomes a parry.</span></div>
-        <div class="rule"><b>🔥 Power Move</b><span>Three correct answers charges a Flèche power attack.</span></div>
+        <div class="rule"><b>🔥 Power Move</b><span>In 1 Player mode, three correct answers charge a Flèche power attack.</span></div>
       </div>
 
       <details class="teacher">
@@ -376,21 +472,35 @@
           <label>Math Topic
             <select id="topic">
               <option value="multiplication">Multiplication facts</option>
-              <option value="addition">Addition</option>
-              <option value="subtraction">Subtraction</option>
+              <option value="addition">Addition (within 20)</option>
+              <option value="subtraction">Subtraction (within 20)</option>
               <option value="division">Division facts</option>
               <option value="mixed">Mixed operations</option>
               <option value="multiples">Multiples check</option>
             </select>
           </label>
-          <label>Smallest Number
+          <label id="minSetting"><span id="minLabelText">Smallest Multiplier</span>
             <input id="minNum" type="number" min="0" max="99" value="2">
           </label>
-          <label>Largest Number
-            <input id="maxNum" type="number" min="2" max="99" value="12">
+          <label id="maxSetting"><span id="maxLabelText">Largest Multiplier</span>
+            <input id="maxNum" type="number" min="0" max="99" value="12">
           </label>
-          <label>Multiple Of
-            <input id="multipleOf" type="number" min="2" max="12" value="4">
+          <label id="tableSetting"><span id="tableLabelText">Times Table</span>
+            <select id="tableChoice">
+              <option value="random">Random Tables (2–12)</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4" selected>4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+              <option value="11">11</option>
+              <option value="12">12</option>
+            </select>
+            <span class="settingHint" id="tableHint">Choose one table, or Random for tables 2–12.</span>
           </label>
           <label>Seconds Per Question
             <select id="seconds">
@@ -400,7 +510,7 @@
               <option>12</option>
             </select>
           </label>
-          <label>Target Touches
+          <label>Points to Win a Round
             <select id="target">
               <option>3</option>
               <option selected>5</option>
@@ -410,8 +520,8 @@
           </label>
           <label>Game Mode
             <select id="gameMode">
-              <option value="1p" selected>1 Player vs Blue AI</option>
-              <option value="2p_speed">2 Players Speed Duel</option>
+              <option value="1p">1 Player vs Blue AI</option>
+              <option value="2p_speed" selected>2 Players Speed Duel</option>
             </select>
           </label>
           <label>Blue Skill
@@ -480,12 +590,12 @@
     phaseTitle:$("phaseTitle"), phaseSubtitle:$("phaseSubtitle"),
     phaseBanner:$("phaseBanner"), phaseIcon:$("phaseIcon"), phaseWords:$("phaseWords"), phaseHint:$("phaseHint"),
     question:$("question"), answers:$("answers"), timeText:$("timeText"),
-    timerFill:$("timerFill"), toast:$("toast")
+    timerFill:$("timerFill"), toast:$("toast"), settingsBtn:$("settingsBtn")
   };
 
   const config = {
-    topic:"multiplication", min:2, max:12, multipleOf:4, seconds:8, target:5, aiSkill:62,
-    sound:true, roundsToWin:2, voice:false, mode:"1p"
+    topic:"multiplication", min:2, max:12, tableChoice:"4", seconds:8, target:5, aiSkill:62,
+    sound:true, roundsToWin:2, voice:false, mode:"2p_speed"
   };
   const game = {
     red:0, blue:0, redRounds:0, blueRounds:0, currentRound:1, totalRounds:3,
@@ -499,9 +609,9 @@
   function readConfig(){
     config.topic = $("topic").value;
     config.min = clamp(parseInt($("minNum").value || "2"),0,99);
-    config.max = clamp(parseInt($("maxNum").value || "12"),2,99);
+    config.max = clamp(parseInt($("maxNum").value || "12"),0,99);
     if(config.max < config.min) [config.min, config.max] = [config.max, config.min];
-    config.multipleOf = clamp(parseInt($("multipleOf").value || "4"),2,12);
+    config.tableChoice = $("tableChoice").value;
     config.seconds = parseInt($("seconds").value);
     config.target = parseInt($("target").value);
     config.mode = $("gameMode").value;
@@ -515,6 +625,18 @@
   function clamp(n,a,b){return Math.max(a,Math.min(b,n))}
   function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a}
   function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+  function shuffle(arr){
+    for(let i=arr.length-1;i>0;i--){
+      const j = rand(0,i);
+      [arr[i],arr[j]] = [arr[j],arr[i]];
+    }
+    return arr;
+  }
+  function tableForQuestion(){
+    return config.tableChoice === "random"
+      ? rand(2,12)
+      : clamp(parseInt(config.tableChoice || "4"),2,12);
+  }
   function otherSide(side){ return side === "red" ? "blue" : "red"; }
   function streakOf(side){ return side === "red" ? game.redStreak : game.blueStreak; }
   function powerOf(side){ return side === "red" ? game.redPower : game.bluePower; }
@@ -545,12 +667,59 @@
     game.power = powerOf(side);
   }
   function updatePlayerLabels(){
-    els.redName.textContent = config.mode === "2p" ? "RED FENCER · PLAYER 1" : "RED FENCER · YOU";
-    els.blueName.textContent = config.mode === "2p" ? "BLUE FENCER · PLAYER 2" : "BLUE FENCER · RIVAL";
+    const isTwoPlayer = config.mode === "2p_speed";
+    els.redName.textContent = isTwoPlayer ? "RED FENCER · PLAYER 1" : "RED FENCER · YOU";
+    els.blueName.textContent = isTwoPlayer ? "BLUE FENCER · PLAYER 2" : "BLUE FENCER · RIVAL";
   }
   function updateModeUI(){
     const blueSkillLabel = $("aiSkill").closest("label");
     if(blueSkillLabel) blueSkillLabel.style.display = config.mode === "1p" ? "" : "none";
+  }
+  function updateTopicUI(){
+    const topic = $("topic").value;
+    const tableSetting = $("tableSetting");
+    const minSetting = $("minSetting");
+    const maxSetting = $("maxSetting");
+    const minLabelText = $("minLabelText");
+    const maxLabelText = $("maxLabelText");
+    const tableLabelText = $("tableLabelText");
+    const tableHint = $("tableHint");
+
+    const usesTable = ["multiplication","division","multiples","mixed"].includes(topic);
+
+    // Addition/subtraction are fixed within 20.
+    // Multiplication/division automatically test facts from ×2 to ×12,
+    // so only the table number needs to be chosen.
+    const hideRange = ["addition","subtraction","multiplication","division"].includes(topic);
+
+    [minSetting, maxSetting].forEach(el => {
+      el.hidden = hideRange;
+      el.style.display = hideRange ? "none" : "flex";
+    });
+
+    tableSetting.hidden = !usesTable;
+    tableSetting.style.display = usesTable ? "flex" : "none";
+
+    minLabelText.textContent = "Smallest Number";
+    maxLabelText.textContent = "Largest Number";
+
+    if(topic === "multiplication"){
+      tableLabelText.textContent = "Times Table";
+      tableHint.textContent = "Choose a table. Questions cover ×1 to ×12 and may show the table number first or second.";
+    }else if(topic === "division"){
+      tableLabelText.textContent = "Division Table";
+      tableHint.textContent = "Choose a table. Questions automatically cover facts from ×2 to ×12.";
+    }else if(topic === "multiples"){
+      minLabelText.textContent = "Smallest Multiplier";
+      maxLabelText.textContent = "Largest Multiplier";
+      tableLabelText.textContent = "Multiple Of";
+      tableHint.textContent = "Choose the number to test multiples of, or Random.";
+    }else if(topic === "mixed"){
+      minLabelText.textContent = "Smallest × / ÷ Number";
+      maxLabelText.textContent = "Largest × / ÷ Number";
+      tableLabelText.textContent = "Times Table (× / ÷)";
+      tableHint.textContent = "Addition/subtraction stay within 20. These settings apply to × and ÷.";
+    }
   }
 
   function setActiveTurn(side=null, action="ANSWER NOW"){
@@ -697,18 +866,52 @@
     els.powerText.style.color = powerOf(activeSide) ? "var(--gold)" : "inherit";
   }
 
+  function enterImmersiveMode(){
+    const root = document.documentElement;
+
+    try{
+      if(!document.fullscreenElement && !document.webkitFullscreenElement){
+        const request = root.requestFullscreen
+          ? root.requestFullscreen({navigationUI:"hide"})
+          : (root.webkitRequestFullscreen ? root.webkitRequestFullscreen() : null);
+
+        if(request && typeof request.then === "function"){
+          request.then(() => {
+            try{
+              if(screen.orientation && screen.orientation.lock){
+                screen.orientation.lock("landscape").catch(() => {});
+              }
+            }catch(e){}
+          }).catch(() => {});
+        }else{
+          try{
+            if(screen.orientation && screen.orientation.lock){
+              screen.orientation.lock("landscape").catch(() => {});
+            }
+          }catch(e){}
+        }
+      }
+    }catch(e){}
+
+    // Helps browsers use the full visual viewport after their chrome collapses.
+    setTimeout(() => {
+      resize();
+      window.scrollTo(0, 0);
+    }, 180);
+  }
+
   function startGame(quick=false){
+    enterImmersiveMode();
     readConfig();
     if(quick){
       config.topic="multiplication";
       config.min=2;
       config.max=9;
+      config.tableChoice="random";
       config.seconds=8;
       config.target=3;
       config.aiSkill=50;
       config.roundsToWin=1;
-      config.mode="1p";
-      $("gameMode").value = "1p";
     }
     updateModeUI();
     game.redRounds=0;
@@ -718,11 +921,38 @@
     game.confetti=[]; game.sparks=[]; game.crowd=0;
     els.cover.classList.add("hidden");
     els.gameOver.classList.add("hidden");
+    els.settingsBtn.classList.remove("hidden");
     toast(config.mode === "2p_speed" ? "Speed Duel: fastest correct answer scores." : "Press 1, 2, 3, or 4 to answer.");
     beginRound(true);
   }
 
+  function returnToSettings(){
+    clearInterval(game.timerId);
+    clearTimeout(game.speedResolveTimer);
+    game.speedFirstCorrectSide = null;
+    game.locked = true;
+
+    els.questionPanel.classList.add("hidden");
+    els.speedPanel.classList.add("hidden");
+    els.phaseBanner.classList.add("hidden");
+    els.gameOver.classList.add("hidden");
+    els.settingsBtn.classList.add("hidden");
+    els.cover.classList.remove("hidden");
+
+    setActiveTurn(null);
+    hideAnswerSigns();
+    game.phase = "cover";
+    game.phaseSide = "red";
+    animate("idle");
+
+    readConfig();
+    updateTopicUI();
+    updateModeUI();
+    updateHud();
+  }
+
   function beginRound(firstRound=false){
+    if(!els.cover.classList.contains("hidden")) return;
     clearInterval(game.timerId);
     clearTimeout(game.speedResolveTimer);
     game.speedFirstCorrectSide = null;
@@ -755,6 +985,7 @@
   }
 
   function nextExchange(){
+    if(!els.cover.classList.contains("hidden")) return;
     if(game.redRounds >= config.roundsToWin || game.blueRounds >= config.roundsToWin) return finish();
     if(game.red >= config.target || game.blue >= config.target) return resolveRoundEnd();
     game.locked=false;
@@ -769,6 +1000,7 @@
   }
 
   function resolveRoundEnd(){
+    if(!els.cover.classList.contains("hidden")) return;
     clearInterval(game.timerId);
     els.questionPanel.classList.add("hidden");
     els.speedPanel.classList.add("hidden");
@@ -797,6 +1029,7 @@
   }
 
   function askSpeedDuel(){
+    if(!els.cover.classList.contains("hidden")) return;
     game.locked = false;
     clearTimeout(game.speedResolveTimer);
     game.speedFirstCorrectSide = null;
@@ -910,21 +1143,21 @@
       }
     }else{
       btn.classList.add("bad");
-      btn.disabled = true;
       sound("wrong");
       recordAnswerForSide(side, false);
       showAnswerSign(side, false);
 
+      // One attempt per player in Speed Duel: a wrong tap cannot become button-mashing.
       const sideButtons = side === "red" ? els.redSpeedAnswers.children : els.blueSpeedAnswers.children;
-      const allTried = [...sideButtons].every(x => x.disabled || Number(x.dataset.value) === q.answer);
-      if(allTried) {
-        [...sideButtons].forEach(x => x.disabled = true);
-      }
+      [...sideButtons].forEach(x => x.disabled = true);
+      if(side === "red") els.redCard.classList.remove("activeTurn");
+      else els.blueCard.classList.remove("activeTurn");
     }
     updateHud();
   }
 
   function ask(phase, side="red"){
+    if(!els.cover.classList.contains("hidden")) return;
     game.locked = false;
     clearInterval(game.timerId);
     game.phase = phase;
@@ -943,7 +1176,7 @@
     if(phase==="attack"){
       els.questionPanel.classList.add("attackMode");
       els.phaseTitle.textContent = `${sideWord} Attack!`;
-      els.phaseSubtitle.textContent = config.mode === "2p" ? `${sideWord} answers to attack.` : (powerOf(side) ? "Answer to unleash a power attack." : "Answer to attack.");
+      els.phaseSubtitle.textContent = config.mode === "2p_speed" ? `${sideWord} answers to attack.` : (powerOf(side) ? "Answer to unleash a power attack." : "Answer to attack.");
       animate(side === "red" ? "redReady" : "blueAttackReady");
     }else if(phase==="defend"){
       els.questionPanel.classList.add("defendMode");
@@ -1024,6 +1257,7 @@
   }
 
   function resolvePhase(phase, correct){
+    if(!els.cover.classList.contains("hidden")) return;
     const side = game.phaseSide || "red";
     const foe = otherSide(side);
 
@@ -1118,6 +1352,7 @@
   }
 
   function score(side, text){
+    if(!els.cover.classList.contains("hidden")) return;
     sound("attack");
     if(side==="red"){
       game.red++;
@@ -1142,6 +1377,7 @@
   }
 
   function finish(){
+    if(!els.cover.classList.contains("hidden")) return;
     clearTimeout(game.speedResolveTimer);
     game.speedFirstCorrectSide = null;
     els.questionPanel.classList.add("hidden");
@@ -1193,31 +1429,57 @@
   function makeQuestion(){
     const topic = config.topic === "mixed" ? pick(["addition","subtraction","multiplication","division"]) : config.topic;
     let a,b,answer,text;
+
     if(topic === "addition"){
-      a = rand(config.min, config.max); b = rand(config.min, config.max);
-      answer = a+b; text = `${a} + ${b} = ?`;
+      // Addition within 20: both addends are positive and the total never exceeds 20.
+      a = rand(1, 19);
+      b = rand(1, 20 - a);
+      answer = a + b;
+      text = `${a} + ${b} = ?`;
     }else if(topic === "subtraction"){
-      a = rand(config.min, config.max); b = rand(config.min, config.max);
-      if(b>a) [a,b]=[b,a];
-      answer = a-b; text = `${a} − ${b} = ?`;
+      // Subtraction within 20: minuend is at most 20 and the answer is never negative.
+      a = rand(2, 20);
+      b = rand(1, a);
+      answer = a - b;
+      text = `${a} − ${b} = ?`;
+    }else if(topic === "multiplication"){
+      const table = tableForQuestion();
+      const factor = rand(1,12);
+
+      // Show the selected times table in either position so pupils
+      // recognise equivalent facts such as 1 × 4 and 4 × 1.
+      const swapOrder = Math.random() < 0.5;
+      a = swapOrder ? factor : table;
+      b = swapOrder ? table : factor;
+
+      answer = table * factor;
+      text = `${a} × ${b} = ?`;
     }else if(topic === "division"){
-      b = rand(Math.max(1,config.min), Math.max(2,config.max));
-      answer = rand(Math.max(1,config.min), Math.max(2,config.max));
-      a = b*answer; text = `${a} ÷ ${b} = ?`;
+      const divisor = tableForQuestion();
+      answer = rand(2,12);
+      a = divisor * answer;
+      b = divisor;
+      text = `${a} ÷ ${b} = ?`;
     }else if(topic === "multiples"){
-      const base = config.multipleOf;
+      const base = tableForQuestion();
+      const factorMin = Math.max(1, config.min);
+      const factorMax = Math.max(factorMin, config.max);
+      const factor = rand(factorMin, factorMax);
+      const exactMultiple = base * factor;
       const isMultiple = Math.random()<.55;
-      if(isMultiple){ a = base * rand(1,12); answer = 1; }
-      else {
-        a = base * rand(1,12) + pick([-3,-2,-1,1,2,3]);
-        if(a <= 0 || a % base === 0) a += 1;
+
+      if(isMultiple){
+        a = exactMultiple;
+        answer = 1;
+      }else{
+        const offset = pick([-3,-2,-1,1,2,3]);
+        a = Math.max(1, exactMultiple + offset);
+        if(a % base === 0) a += offset > 0 ? 1 : -1;
+        if(a <= 0 || a % base === 0) a = exactMultiple + 1;
         answer = 0;
       }
       text = `Is ${a} a multiple of ${base}?`;
-      return {text, answer, choices: Math.random()<.5 ? [1,0] : [0,1], yesNo:true};
-    }else{
-      a = rand(config.min, config.max); b = rand(config.min, config.max);
-      answer = a*b; text = `${a} × ${b} = ?`;
+      return {text, answer, choices: shuffle([1,0]), yesNo:true};
     }
     return {text, answer, choices: makeChoices(answer)};
   }
@@ -1232,7 +1494,7 @@
       if(wrong !== answer) set.add(wrong);
       spread++;
     }
-    return [...set].sort(() => Math.random()-.5);
+    return shuffle([...set]);
   }
 
   window.addEventListener("keydown", e => {
@@ -1247,27 +1509,18 @@
   $("startBtn").addEventListener("click", () => startGame(false));
   $("demoBtn").addEventListener("click", () => startGame(true));
   $("againBtn").addEventListener("click", () => startGame(false));
+  $("topic").addEventListener("change", () => {
+    readConfig();
+    updateTopicUI();
+  });
+  $("tableChoice").addEventListener("change", readConfig);
   $("gameMode").addEventListener("change", () => {
     readConfig();
     updateModeUI();
     updateHud();
   });
-  $("coverBtn").addEventListener("click", () => {
-    clearTimeout(game.speedResolveTimer);
-    game.speedFirstCorrectSide = null;
-    els.gameOver.classList.add("hidden");
-    els.questionPanel.classList.add("hidden");
-    els.speedPanel.classList.add("hidden");
-    els.phaseBanner.classList.add("hidden");
-    setActiveTurn(null);
-    hideAnswerSigns();
-    els.cover.classList.remove("hidden");
-    if("speechSynthesis" in window) window.speechSynthesis.cancel();
-    readConfig();
-    updateModeUI();
-    updateHud();
-    game.phase="cover"; animate("idle");
-  });
+  $("coverBtn").addEventListener("click", returnToSettings);
+  $("settingsBtn").addEventListener("click", returnToSettings);
 
   function draw(){
     const now = performance.now();
@@ -1470,8 +1723,41 @@
 
   function drawFencers(w,h,now){
     const speedModeVisible = !els.speedPanel.classList.contains("hidden");
-    const floorY = speedModeVisible ? h*.46 : h*.70;
-    const fighterScale = speedModeVisible ? 1.2 : 1;
+    const questionVisible = !els.questionPanel.classList.contains("hidden");
+    const compactLandscape = w > h && h <= 700;
+
+    let floorY;
+    let fighterScale;
+
+    if(compactLandscape){
+      // Work from the ACTUAL visible UI boundaries, not fixed percentages.
+      // This keeps every fencer below the scoreboard and above the question/answer panel.
+      const appRect = app.getBoundingClientRect();
+      const topbar = document.querySelector(".topbar");
+      const topbarBottom = topbar
+        ? topbar.getBoundingClientRect().bottom - appRect.top + 7
+        : 82;
+
+      let panelTop = h - 8;
+      if(speedModeVisible){
+        panelTop = els.speedPanel.getBoundingClientRect().top - appRect.top;
+      }else if(questionVisible){
+        panelTop = els.questionPanel.getBoundingClientRect().top - appRect.top;
+      }
+
+      // Feet stay just above the active question panel.
+      floorY = Math.min(h * .69, panelTop - 8);
+
+      // Normal fencing poses need about 235px of vertical drawing room.
+      // The opening salute is taller, so shrink only for that animation.
+      const availableHeight = Math.max(120, floorY - topbarBottom);
+      const poseHeight = game.anim === "salute" ? 320 : 235;
+      fighterScale = clamp(availableHeight / poseHeight, .58, .88);
+    }else{
+      floorY = speedModeVisible ? h*.46 : h*.70;
+      fighterScale = speedModeVisible ? 1.2 : 1;
+    }
+
     const t = Math.min(1, (now - game.animStart)/760);
     const ease = t<.5 ? 2*t*t : 1 - Math.pow(-2*t+2,2)/2;
 
@@ -1617,7 +1903,6 @@
     let shoulder = {x:x, y:y-136+bob};
     let hip = {x:x, y:y-64+bob};
     let head = {x:x, y:shoulder.y-30};
-
     // Pose definitions make attack and parry readable even for stickmen.
     let lean = 0;
     let frontFoot = {x:x+dir*46, y:y-6};
@@ -1924,6 +2209,7 @@
 
   readConfig();
   updateModeUI();
+  updateTopicUI();
   updateHud();
   draw();
 })();
