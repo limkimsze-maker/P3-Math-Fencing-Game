@@ -904,6 +904,337 @@
     }
   }
 
+
+  /* Larger start / Teacher Mode window for readability */
+  @media (min-width:900px) and (min-height:620px){
+    .coverCard,.overCard{
+      width:min(1120px,94vw);
+      max-height:94dvh;
+      padding:34px 38px;
+      border-radius:34px;
+    }
+    .cover h1,.overCard h1{
+      font-size:78px;
+      margin:0 0 14px;
+      line-height:.96;
+    }
+    .cover p,.overCard p{
+      font-size:28px;
+      line-height:1.45;
+      margin:10px 0 16px;
+    }
+
+    .ruleGrid{
+      grid-template-columns:repeat(3,1fr);
+      gap:16px;
+      margin:22px 0 20px;
+    }
+    .rule{
+      padding:18px 18px 16px;
+      border-radius:22px;
+      min-height:170px;
+    }
+    .rule b{
+      font-size:28px;
+      margin-bottom:8px;
+      line-height:1.1;
+    }
+    .rule span{
+      font-size:22px;
+      line-height:1.42;
+    }
+
+    .teacher{
+      margin-top:18px;
+      border-radius:24px;
+    }
+    .teacher summary{
+      padding:18px 20px;
+      font-size:28px;
+      line-height:1.15;
+    }
+    .settings{
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+      padding:0 18px 18px;
+    }
+    label{
+      gap:8px;
+      font-size:20px;
+      line-height:1.2;
+    }
+    select,input{
+      padding:16px 14px;
+      font-size:24px;
+      border-radius:16px;
+    }
+    .settingHint{
+      font-size:16px;
+      line-height:1.35;
+    }
+
+    .buttons{
+      gap:16px;
+      margin-top:20px;
+    }
+    .primary,.secondary,.tiny{
+      padding:18px 24px;
+      font-size:24px;
+      border-radius:999px;
+    }
+  }
+
+  /* Bigger cover card on smaller screens too */
+  @media (max-width:899px){
+    .coverCard,.overCard{
+      width:min(96vw,900px);
+      padding:22px 22px 24px;
+    }
+    .cover h1,.overCard h1{
+      font-size:clamp(42px,9vw,64px);
+      margin-bottom:12px;
+    }
+    .cover p,.overCard p{
+      font-size:clamp(18px,3.5vw,24px);
+      line-height:1.4;
+    }
+    .rule b{
+      font-size:clamp(20px,4vw,26px);
+    }
+    .rule span{
+      font-size:clamp(16px,3vw,20px);
+      line-height:1.35;
+    }
+    .teacher summary{
+      font-size:clamp(18px,3.8vw,24px);
+      padding:14px 16px;
+    }
+    label{
+      font-size:clamp(15px,3vw,18px);
+    }
+    select,input{
+      font-size:clamp(16px,3.4vw,20px);
+      padding:12px 10px;
+    }
+    .buttons .primary,.buttons .secondary,.buttons .tiny{
+      font-size:clamp(16px,3.5vw,20px);
+      padding:14px 18px;
+    }
+  }
+
+
+  /* Bigger start/settings window, while always fitting without scrolling */
+  @media (min-width:900px) and (min-height:620px){
+    .cover,.gameOver{
+      padding:10px;
+    }
+
+    .coverCard,.overCard{
+      width:min(1280px,97vw);
+      max-height:96dvh;
+      overflow:hidden;
+      padding:clamp(18px,2.4vh,28px) clamp(26px,2.8vw,38px);
+      border-radius:30px;
+    }
+
+    .cover h1,.overCard h1{
+      font-size:clamp(54px,7.2vh,76px);
+      line-height:.94;
+      margin:0 0 clamp(6px,1vh,10px);
+    }
+
+    .cover p,.overCard p{
+      font-size:clamp(18px,2.4vh,24px);
+      line-height:1.3;
+      margin:4px 0 10px;
+    }
+
+    .ruleGrid{
+      gap:12px;
+      margin:12px 0;
+    }
+
+    .rule{
+      min-height:0;
+      padding:14px 15px;
+      border-radius:18px;
+    }
+
+    .rule b{
+      font-size:clamp(20px,2.6vh,26px);
+      margin-bottom:5px;
+    }
+
+    .rule span{
+      font-size:clamp(15px,1.9vh,19px);
+      line-height:1.28;
+    }
+
+    .teacher{
+      margin-top:10px;
+      border-radius:18px;
+    }
+
+    .teacher summary{
+      padding:12px 16px;
+      font-size:clamp(20px,2.5vh,25px);
+    }
+
+    .settings{
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:10px 12px;
+      padding:0 14px 12px;
+    }
+
+    label{
+      gap:5px;
+      font-size:clamp(14px,1.8vh,18px);
+      line-height:1.15;
+    }
+
+    select,input{
+      padding:10px 10px;
+      font-size:clamp(16px,2vh,20px);
+      border-radius:12px;
+    }
+
+    .settingHint{
+      font-size:clamp(11px,1.45vh,14px);
+      line-height:1.2;
+    }
+
+    .buttons{
+      margin-top:12px;
+      gap:12px;
+    }
+
+    .primary,.secondary,.tiny{
+      padding:13px 20px;
+      font-size:clamp(17px,2.1vh,21px);
+    }
+
+    /* When Teacher Mode is open, tighten the non-essential intro area slightly
+       so the full settings panel still fits on a Chromebook screen. */
+    .coverCard:has(.teacher[open]) h1{
+      font-size:clamp(48px,6vh,64px);
+      margin-bottom:4px;
+    }
+
+    .coverCard:has(.teacher[open]) > p{
+      font-size:clamp(16px,2vh,20px);
+      margin:2px 0 7px;
+    }
+
+    .coverCard:has(.teacher[open]) .ruleGrid{
+      margin:7px 0 9px;
+      gap:9px;
+    }
+
+    .coverCard:has(.teacher[open]) .rule{
+      padding:9px 11px;
+    }
+
+    .coverCard:has(.teacher[open]) .rule b{
+      font-size:clamp(17px,2.1vh,21px);
+      margin-bottom:2px;
+    }
+
+    .coverCard:has(.teacher[open]) .rule span{
+      font-size:clamp(12px,1.55vh,15px);
+      line-height:1.2;
+    }
+
+    .coverCard:has(.teacher[open]) .buttons{
+      margin-top:8px;
+    }
+  }
+
+  /* Keep the same no-scroll principle on shorter landscape screens. */
+  @media (orientation:landscape) and (max-height:619px){
+    .coverCard,.overCard{
+      width:min(1180px,98vw);
+      max-height:97dvh;
+      overflow:hidden;
+    }
+
+    .coverCard:has(.teacher[open]){
+      padding-top:7px;
+      padding-bottom:7px;
+    }
+
+    .coverCard:has(.teacher[open]) h1{
+      font-size:clamp(28px,7vh,40px);
+      margin-bottom:2px;
+    }
+
+    .coverCard:has(.teacher[open]) > p{
+      font-size:10px;
+      line-height:1.15;
+      margin:1px 0 3px;
+    }
+
+    .coverCard:has(.teacher[open]) .ruleGrid{
+      margin:3px 0 4px;
+      gap:4px;
+    }
+
+    .coverCard:has(.teacher[open]) .rule{
+      padding:4px 6px;
+    }
+
+    .coverCard:has(.teacher[open]) .rule b{
+      font-size:11px;
+      margin-bottom:1px;
+    }
+
+    .coverCard:has(.teacher[open]) .rule span{
+      font-size:8px;
+      line-height:1.1;
+    }
+
+    .coverCard:has(.teacher[open]) .teacher{
+      margin-top:3px;
+    }
+
+    .coverCard:has(.teacher[open]) .teacher summary{
+      padding:5px 7px;
+      font-size:11px;
+    }
+
+    .coverCard:has(.teacher[open]) .settings{
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:4px 5px;
+      padding:0 6px 5px;
+    }
+
+    .coverCard:has(.teacher[open]) label{
+      gap:2px;
+      font-size:8px;
+    }
+
+    .coverCard:has(.teacher[open]) select,
+    .coverCard:has(.teacher[open]) input{
+      padding:4px 5px;
+      font-size:10px;
+    }
+
+    .coverCard:has(.teacher[open]) .settingHint{
+      font-size:7px;
+      line-height:1.05;
+    }
+
+    .coverCard:has(.teacher[open]) .buttons{
+      margin-top:4px;
+      gap:5px;
+    }
+
+    .coverCard:has(.teacher[open]) .primary,
+    .coverCard:has(.teacher[open]) .secondary{
+      padding:6px 9px;
+      font-size:10px;
+    }
+  }
+
 </style>
 </head>
 <body>
